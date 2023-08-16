@@ -1,0 +1,26 @@
+.main {
+    margin: 0px;
+    margin-left: calc(50% - 850px);
+    margin-right: calc(50% - 850px);
+    margin-top: 90px;
+    width: auto;
+    padding-left: 16px;
+    padding-top: 1px;
+}
+.lwh {
+    height: 50px;
+    margin: 10px;
+    margin-left: calc(50% - 845px);
+}
+.white {
+    background-color: #ffffff;
+}
+.grey {
+    background-color: #f1f1f1;
+}
+.up {
+    height: 70px;
+    width: 100%;
+    top: 0;
+    position: fixed;
+}

@@ -27,22 +27,22 @@
 			background-color: #f2f2f2;
 		}
 
-		body {
-			user-select: unset;
+		.unsafe {
+			user-select: none;
 		}
 	</style>
 </head>
 
 <body>
-	<a href="/"><img class="icon" src="/file/icon.png"></a>
-	<h1 style="color:red">贡献榜</h1>
-	<h2 style="color:red">反馈邮箱:</h2>
+	<a class="unsafe" href="/"><img class="icon" src="/file/icon.png"></a>
+	<h1 class="unsafe" style="color:red">贡献榜</h1>
+	<h2 class="unsafe" style="color:red">反馈邮箱:</h2>
 	<div>
-		<a class="safe">fishing-feedback@outlook.com</a>
-		<a>&nbsp;或&nbsp;</a>
-		<a class="safe">fishing-feedback2@outlook.com</a>
+		<a>fishing-feedback@outlook.com</a>
+		<a class="unsafe">&nbsp;或&nbsp;</a>
+		<a>fishing-feedback2@outlook.com</a>
 	</div>
-	<table>
+	<table class="unsafe">
 		<thead>
 			<tr>
 				<th>序号</th>
@@ -64,7 +64,7 @@
 			</tr>
 		</tbody>
 	</table>
-	<a onclick="jump()" class="jump" style="cursor: default;">&nbsp;&nbsp;&nbsp;&nbsp;</a>
+	<a onclick="jump()" class="jump unsafe" style="cursor: default;">&nbsp;&nbsp;&nbsp;&nbsp;</a>
 	<script src="/cssjs/a.js"></script>
 </body>
 

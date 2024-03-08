@@ -1,5 +1,5 @@
 
-html {
+html:not(.safe) {
 	user-select: none;
 }
 h1,
@@ -65,8 +65,4 @@ a {
 	bottom: 0px;
 	left: 0px;
 	user-select: none;
-}
-
-.safe{
-	user-select: unset;
 }

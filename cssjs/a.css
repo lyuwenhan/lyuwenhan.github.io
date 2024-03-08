@@ -51,3 +51,18 @@ a {
 	background: none;
 	cursor: pointer;
 }
+
+.jump {
+	padding: 0px;
+	border-radius: 0px;
+	background-color: #ffffff;
+	color: #ffffff;
+	text-decoration: none;
+	display: inline-block;
+	font-size: 2px;
+	cursor: pointer;
+	position: fixed;
+	bottom: 0px;
+	left: 0px;
+	user-select: none;
+}

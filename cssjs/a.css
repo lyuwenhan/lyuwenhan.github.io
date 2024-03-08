@@ -1,5 +1,5 @@
 
-html:not(.safe) {
+body:not(.safe) {
 	user-select: none;
 }
 h1,
@@ -64,5 +64,4 @@ a {
 	position: fixed;
 	bottom: 0px;
 	left: 0px;
-	user-select: none;
 }

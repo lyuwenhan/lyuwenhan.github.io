@@ -10,18 +10,37 @@
 		html {
 			user-select: none;
 		}
+
+		#change:hover {
+			cursor: pointer;
+		}
+	</style>
 	</style>
 </head>
 
 <body>
 	<a href="/"><img class="icon" src="/file/icon.png"></a>
 	<h1>友链</h1>
-	<a href=''>切换到预发布版本</a><br>
+	<a onclick="changeText()" id="change">切换到预发布版本</a><br>
 	<a href='/friendlist/other/'>其他开发者</a><br>
 	<a href='https://c3.binjie.fun/'>chat-GPT</a><br>
 	<a href="/contribution" class="contribution">贡献榜</a>
 	<a onclick="jump()" class="jump" style="cursor: default;">&nbsp;&nbsp;&nbsp;&nbsp;</a>
 	<script src="/cssjs/a.js"></script>
+	<script>
+		function changeText() {
+			var link = document.getElementById("change");
+			link.textContent = "null";
+			link.style.color = "red";
+			link.onclick="";
+
+			setTimeout(function () {
+				link.textContent = "切换到预发布版本";
+				link.style.color = "black";
+				link.onclick="changeText()";
+			}, 1000);
+		}
+	</script>
 </body>
 
 </html>

@@ -17,12 +17,24 @@
 <body>
 	<a href="/"><img class="icon" src="/file/icon.png"></a>
 	<h1>fishing</h1>
+	<div style="width: 0px;height: 0px;" class="fishing"></div>
 	<a href="/contribution" class="contribution">贡献榜</a>
 	<div onclick="jump()" class="jump" style="cursor: default;"></div>
 	<script src="/cssjs/a.js"></script>
 	<script>
 		window.onload = function(){
-			get();
+			$.getJSON('https://lyuwenhan.github.io/file/fishing.json', function(jsonData) {
+				console.log('Received data:', jsonData);
+				var fileList = jsonData.file;
+				var contributionElement = document.querySelector('.fishing');
+				fileList.forEach(function(file) {
+				var linkElement = document.createElement('a');
+				linkElement.textContent = file.name;
+				linkElement.href = file.path;
+				contributionElement.parentNode.insertBefore(linkElement, contributionElement);
+				contributionElement.parentNode.insertBefore(document.createElement('br'), contributionElement);
+				});
+			})
 		};
 	</script>
 </body>

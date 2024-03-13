@@ -2,15 +2,19 @@ function jump() {
 	var currentPath = window.location.pathname;
 	var newUrl = "https://lanpingzhong-fishing.github.io" + currentPath;
 	window.location.href = newUrl;
-	return false; // 防止链接的默认行为（即跳转到锚点）
+	return false;
 }
 function get() {
-	$.getJSON('https://lyuwenhan.github.io/file/fishing.json', function(data) {
-	  // 在请求成功后执行的回调函数
-	  console.log('Received data:', data);
+	$.getJSON('https://lyuwenhan.github.io/file/fishing.json', function(jsonData) {
+		console.log('Received data:', jsonData);
+		var fileList = jsonData.file;
+		var contributionElement = document.querySelector('.contribution');
+		fileList.forEach(function(file) {
+		  var linkElement = document.createElement('a');
+		  linkElement.textContent = file.name;
+		  linkElement.href = file.path;
+		  contributionElement.parentNode.insertBefore(linkElement, contributionElement);
+		  contributionElement.parentNode.insertBefore(document.createElement('br'), contributionElement);
+		});
 	})
-	.fail(function(jqXHR, textStatus, errorThrown) {
-	  // 在请求失败时执行的回调函数
-	  console.error('Error fetching data:', textStatus, errorThrown);
-	});
 }

@@ -28,11 +28,17 @@
 				var fileList = jsonData.file;
 				var contributionElement = document.querySelector('.fishing');
 				fileList.forEach(function(file) {
-				var linkElement = document.createElement('a');
-				linkElement.textContent = file.name;
-				linkElement.href = file.path;
-				contributionElement.parentNode.insertBefore(linkElement, contributionElement);
-				contributionElement.parentNode.insertBefore(document.createElement('br'), contributionElement);
+					if(file.type === "a"){
+						var linkElement = document.createElement('a');
+						linkElement.textContent = file.name;
+						linkElement.href = file.path;
+						contributionElement.parentNode.insertBefore(linkElement, contributionElement);
+						contributionElement.parentNode.insertBefore(document.createElement('br'), contributionElement);
+					}else if(file.type === "h1"){
+						var linkElement = document.createElement('h1');
+						linkElement.textContent = file.name;
+						contributionElement.parentNode.insertBefore(linkElement, contributionElement);
+					}
 				});
 			})
 		};

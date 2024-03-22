@@ -1,34 +1,46 @@
 {
 	"file": [
 		{
+			"type": "h1",
+			"name": "fishing"
+		},
+		{
+			"type": "a",
 			"name": "fishing0.0.1",
 			"path": "/file/fishing0.0.1.zip"
 		},
 		{
+			"type": "a",
 			"name": "fishing0.0.2",
 			"path": "/file/fishing0.0.2.zip"
 		},
 		{
+			"type": "a",
 			"name": "fishing0.0.3",
 			"path": "/file/fishing0.0.3.zip"
 		},
 		{
+			"type": "a",
 			"name": "fishing0.0.4",
 			"path": "/file/fishing0.0.4.zip"
 		},
 		{
+			"type": "a",
 			"name": "fishing0.1.1",
 			"path": "/file/fishing0.1.1.zip"
 		},
 		{
+			"type": "a",
 			"name": "fishing0.1.2",
 			"path": "/file/fishing0.1.2.zip"
 		},
 		{
+			"type": "a",
 			"name": "fishing0.2.1",
 			"path": "/file/fishing0.2.1.zip"
 		},
 		{
+			"type": "a",
 			"name": "fishing0.2.2",
 			"path": "/file/fishing0.2.2.zip"
 		}

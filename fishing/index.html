@@ -4,9 +4,9 @@
 <head>
 	<title>fishing-game</title>
 	<meta charset="UTF-8">
+	<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 	<link rel="icon" href="/file/icon.png" type="image/x-icon">
 	<link rel="stylesheet" href="/cssjs/a.css">
-	<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 	<style>
 		html {
 			user-select: none;
@@ -22,19 +22,19 @@
 	<div onclick="jump()" class="jump" style="cursor: default;"></div>
 	<script src="/cssjs/a.js"></script>
 	<script>
-		window.onload = function(){
-			$.getJSON('https://lyuwenhan.github.io/json/fishing.json', function(jsonData) {
+		window.onload = function () {
+			$.getJSON('https://lyuwenhan.github.io/json/fishing.json', function (jsonData) {
 				console.log('Received data:', jsonData);
 				var fileList = jsonData.file;
 				var contributionElement = document.querySelector('.fishing');
-				fileList.forEach(function(file) {
-					if(file.type === "a"){
+				fileList.forEach(function (file) {
+					if (file.type === "a") {
 						var linkElement = document.createElement('a');
 						linkElement.textContent = file.name;
 						linkElement.href = file.path;
 						contributionElement.parentNode.insertBefore(linkElement, contributionElement);
 						contributionElement.parentNode.insertBefore(document.createElement('br'), contributionElement);
-					}else if(file.type === "h1"){
+					} else if (file.type === "h1") {
 						var linkElement = document.createElement('h1');
 						linkElement.textContent = file.name;
 						contributionElement.parentNode.insertBefore(linkElement, contributionElement);

@@ -26,28 +26,43 @@
 		},
 		{
 			"type": "a",
+			"name": "fishing0.0.5",
+			"path": "/file/fishing0.0.4.zip"
+		},
+		{
+			"type": "a",
+			"name": "fishing0.0.6",
+			"path": "/file/fishing0.0.4.zip"
+		},
+		{
+			"type": "a",
+			"name": "fishing0.0.7",
+			"path": "/file/fishing0.0.4.zip"
+		},
+		{
+			"type": "a",
+			"name": "fishing0.0.8",
+			"path": "/file/fishing0.0.4.zip"
+		},
+		{
+			"type": "a",
+			"name": "fishing0.0.9",
+			"path": "/file/fishing0.0.4.zip"
+		},
+		{
+			"type": "a",
+			"name": "fishing0.1.0",
+			"path": "/file/fishing0.0.4.zip"
+		},
+		{
+			"type": "a",
 			"name": "fishing0.1.1",
-			"path": "/file/fishing0.1.1.zip"
+			"path": "/file/fishing0.0.4.zip"
 		},
 		{
 			"type": "a",
 			"name": "fishing0.1.2",
-			"path": "/file/fishing0.1.2.zip"
-		},
-		{
-			"type": "a",
-			"name": "fishing0.2.1",
-			"path": "/file/fishing0.2.1.zip"
-		},
-		{
-			"type": "a",
-			"name": "fishing0.2.2",
-			"path": "/file/fishing0.2.2.zip"
-		},
-		{
-			"type": "a",
-			"name": "fishing0.2.3",
-			"path": "/file/fishing0.2.3.zip"
+			"path": "/file/fishing0.0.4.zip"
 		}
 	]
 }

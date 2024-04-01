@@ -1,0 +1,77 @@
+h1,
+h2 {
+	text-align: center;
+}
+
+body {
+	text-align: center;
+}
+
+table {
+	margin-right: auto;
+	margin-left: auto;
+}
+
+a {
+	color: black;
+	text-decoration: none;
+}
+
+.contribution {
+	padding: 10px 20px;
+	border-radius: 10px;
+	background-color: #3498db;
+	color: #ffffff;
+	text-decoration: none;
+	display: inline-block;
+	font-size: 16px;
+	cursor: pointer;
+	position: fixed;
+	bottom: 10px;
+	right: 10px;
+}
+
+.contribution:hover {
+	filter: brightness(90%);
+}
+
+.icon {
+	width: 30px;
+	height: 30px;
+	border-radius: 20%;
+	position: fixed;
+	top: 10px;
+	left: 10px;
+	border: 0;
+	padding: 0;
+	background: none;
+	cursor: pointer;
+}
+
+.icon2 {
+	width: 30px;
+	height: 30px;
+	border-radius: 20%;
+	position: fixed;
+	top: 10px;
+	left: 50px;
+	border: 0;
+	padding: 0;
+	background: none;
+	cursor: pointer;
+}
+
+.jump {
+	width: 2px;
+	height: 2px;
+	padding: 0px;
+	border-radius: 0px;
+	background-color: #ffffff;
+	color: #ffffff;
+	text-decoration: none;
+	display: inline-block;
+	cursor: pointer;
+	position: fixed;
+	bottom: 0px;
+	left: 0px;
+}

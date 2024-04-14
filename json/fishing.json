@@ -68,6 +68,16 @@
 			"type": "a",
 			"name": "fishing0.1.4",
 			"path": "/file/fishing0.1.4.zip"
+		},
+		{
+			"type": "a",
+			"name": "fishing0.1.5",
+			"path": "/file/fishing0.1.5.zip"
+		},
+		{
+			"type": "a",
+			"name": "fishing0.1.6",
+			"path": "/file/fishing0.1.6.zip"
 		}
 	]
 }

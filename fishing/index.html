@@ -25,6 +25,7 @@
 		var xxx = false;
 		function a(){
 			if(xxx === false){
+				xxx=true;
 				$.getJSON('https://lyuwenhan.github.io/json/fishing.json', function (jsonData) {
 					console.log('Received data:', jsonData);
 					var fileList = jsonData.file;
@@ -34,6 +35,7 @@
 							var linkElement = document.createElement('a');
 							linkElement.textContent = file.name;
 							linkElement.href = file.path;
+							linkElement.download = "";
 							contributionElement.parentNode.insertBefore(linkElement, contributionElement);
 							contributionElement.parentNode.insertBefore(document.createElement('br'), contributionElement);
 						} else if (file.type === "h1") {
@@ -44,7 +46,6 @@
 					});
 					contributionElement.innerHTML = "";
 				})
-				xxx=true;
 			}
 		}
 		window.onload = function () {

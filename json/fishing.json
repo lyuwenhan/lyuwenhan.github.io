@@ -2,6 +2,15 @@
 	"file": [
 		{
 			"type": "h1",
+			"name": "启动器"
+		},
+		{
+			"type": "a",
+			"name": "FishingLauncher",
+			"path": "/file/setup.out"
+		},
+		{
+			"type": "h1",
 			"name": "fishing"
 		},
 		{

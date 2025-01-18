@@ -157,6 +157,26 @@
 			"type": "a",
 			"name": "fishing0.3.2",
 			"path": "/file/fishing0.3.2.zip"
+		},
+		{
+			"type": "a",
+			"name": "fishing0.3.3",
+			"path": "/file/fishing0.3.3.zip"
+		},
+		{
+			"type": "a",
+			"name": "fishing0.3.4",
+			"path": "/file/fishing0.3.4.zip"
+		},
+		{
+			"type": "a",
+			"name": "fishing0.3.5",
+			"path": "/file/fishing0.3.5.zip"
+		},
+		{
+			"type": "a",
+			"name": "fishing0.3.6",
+			"path": "/file/fishing0.3.6.zip"
 		}
 	]
 }

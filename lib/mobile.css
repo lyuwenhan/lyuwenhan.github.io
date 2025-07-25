@@ -44,9 +44,6 @@ nav ul {
 nav li {
 	width: 100%;
 }
-.pos-right{
-	position: unset;
-}
 nav>ul>li{
 	position: relative;
 }

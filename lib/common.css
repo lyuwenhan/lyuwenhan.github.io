@@ -87,6 +87,7 @@ i{
 	top: 0px;
 	left: 0px;
 	width: 100%;
+	z-index: 11;
 }
 nav {
 	z-index: 12;
@@ -125,10 +126,6 @@ nav ul {
 nav li {
 	display: block;
 	list-style: none;
-}
-.pos-right{
-	position: absolute;
-	right: 50px;
 }
 nav>ul>li:hover ul{
 	display: block;

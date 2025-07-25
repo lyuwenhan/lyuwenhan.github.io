@@ -167,3 +167,59 @@ img,br,button{
 	-ms-user-select: none;
 	-webkit-user-drag: none;
 }
+body.sd * {
+	display: none !important;
+}
+body.sd, body.sd * {
+	overflow: hidden !important;
+}
+.agr{
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: calc(100% - 20px);
+	height: calc(100% - 20px);
+	padding: 10px;
+	display: none;
+	overflow-x: hidden !important;
+	overflow-y: auto !important;
+	color: #500000;
+	z-index: 21;
+}
+body.sd .agr{
+	display: block !important;
+	overflow-x: hidden !important;
+	overflow-y: auto !important;
+}
+body.sd .agr *{
+	display: block !important;
+}
+button{
+	background-color: transparent;
+	border: 1px solid black;
+	cursor: pointer;
+	padding: 9px;
+	border-radius: 5px;
+	background-color: #ad0000;
+	color: white;
+	font-weight: bold;
+}
+
+button:hover{
+	background-color: #900000;
+}
+
+button:active{
+	background-color: #9e0000;
+}
+button.nd{
+	background-color: #640000;
+}
+
+button.nd:hover{
+	background-color: #640000;
+}
+
+button.nd:active{
+	background-color: #640000;
+}

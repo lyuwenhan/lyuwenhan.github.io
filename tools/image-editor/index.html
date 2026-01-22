@@ -1,26 +1,63 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
-	<head>
-		<meta charset="UTF-8" />
-		<title>Image Editor</title>
-		<link rel="icon" href="/lib/favicon.png" type="image/x-icon">
-		<link rel="stylesheet" href="main.css">
-	</head>
+<head>
+	<title>Image Editor</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="icon" href="/lib/favicon.png" type="image/x-icon">
+	<link rel="stylesheet" href="/lib/common.css">
+	<link rel="stylesheet" href="/lib/mobile.css" media="only screen and (max-width: 768px)">
+	<link rel="stylesheet" href="main.css">
+</head>
 
-	<body><a href="..">back</a>
-		<h3>Image editor</h3><input id="loadByUrl" placeholder="Load by url(enter to apply)">
-		<div id="drop">Drag image, click, or paste to upload</div><span>Force Background color(Remove Transparency):</span>
+<body>
+	<nav>
+		<span class="icon1">
+			<svg class="favico" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="#B9F3FB">
+				<rect x="20" y="25" width="60" height="8" rx="4"/>
+				<rect x="20" y="46" width="60" height="8" rx="4"/>
+				<rect x="20" y="67" width="60" height="8" rx="4"/>
+			</svg>
+		</span>
+		<a class="icon2"><img class="favico" src="/lib/favicon.png"></a>
+		<a class="icon3" href="/"><img class="favico" src="/lib/favicon.png"></a>
+		<ul>
+			<li><a href="/">Home</a></li>
+			<li><a href="/fishing-intro/">Games</a></li>
+			<li><a href="/tools/">Tools</a></li>
+			<li><a href="/vscode-ext-intro/">Vscode extensions</a></li>
+			<li><a href="/chrome-ext-intro/">Chrome extensions</a></li>
+		</ul>
+	</nav>
+	<div class="main">
+		<a href=".." class="bt">back</a>
+		<h3>Image editor</h3>
+		<input id="loadByUrl" placeholder="Load by url(enter to apply)">
+		<div id="drop">Drag image, click, or paste to upload</div>
+		<span>Force Background color(Remove Transparency):</span>
 		<ul id="foTr">
 			<li><label class="controls">Enable: <input type="checkbox" id="removeTrans"></label></li>
 			<li><span class="controls">Color:<input id="bgColor" type="color" value="#ffffff" /></span></li>
-		</ul><label class="controls">No Smoothing: <input type="checkbox" id="noSmooth"></label>
+		</ul>
+		<label class="controls">No Smoothing: <input type="checkbox" id="noSmooth"></label>
 		<div id="prev" hidden>
-			<div class="controls"><span>Size:</span><input id="setW" value="128" type="number" placeholder="width"><input id="setH" value="128" type="number" placeholder="height"></div><canvas id="canvas" hidden></canvas><img id="canvasDisplay">
-			<div class="controls"><button id="download" disabled="disabled">Download PNG</button> <button id="copy" disabled="disabled">Copy</button></div><input id="file" type="file" accept="image/*" hidden />
+			<div class="controls">
+				<span>Size:</span>
+				<input id="setW" value="128" type="number" placeholder="width">
+				<input id="setH" value="128" type="number" placeholder="height">
+			</div>
+			<canvas id="canvas" hidden></canvas>
+			<img id="canvasDisplay">
+			<div class="controls">
+				<button id="download" disabled="disabled">Download PNG</button>
+				<button id="copy" disabled="disabled">Copy</button>
+			</div>
+			<input id="file" type="file" accept="image/*" hidden />
 		</div>
 		<div id="dragOverlay"></div>
 		<script src="main.js"></script>
-	</body>
+	</div>
+</body>
 
 </html>

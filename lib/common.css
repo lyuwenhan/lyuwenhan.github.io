@@ -6,7 +6,7 @@ body {
 .main {
 	width: calc(100% - 20px);
 	margin-top: 60px;
-	padding: 10px
+	padding: 30px
 }
 table {
 	margin-right: auto;

@@ -1,222 +1,79 @@
-body{
-	font-family: 'Consolas', Courier, monospace;
-	padding: 0;
+body {
+	font-family: Consolas, Courier, monospace;
+	margin: 0
 }
-
-.main{
-	height: calc(100% - 60px);
-	width: 100%;
-	padding: 60px 0 0 0;
+.main {
+	width: calc(100% - 20px);
+	margin-top: 60px;
+	padding: 10px
 }
-
-table{
+table {
 	margin-right: auto;
-	margin-left: auto;
+	margin-left: auto
 }
-
-a{
-	color: black;
-	text-decoration: none;
+a {
+	text-decoration: none
 }
-
-i{
-	color: grey;
+.bt {
+	color: #48afe9
 }
-
-.red{
-	background-color:#f9f2f4;
-	color:#c7254e;
-	padding:1px 4px;
-	border-radius: 5px;
+.bt:hover {
+	opacity: .7
 }
-
-.bt{
-	color: #48afe9;
+.bt:active {
+	opacity: .8
 }
-
-.bt:hover{
-	opacity: 0.7;
-}
-.bt:active{
-	opacity: 0.8;
-}
-
-.icon{
-	width: 30px;
-	height: 30px;
-	border-radius: 20%;
-	position: absolute;
-	top: 10px;
-	left: 10px;
-	border: 0;
-	padding: 0;
-	background: none;
-	cursor: pointer;
-}
-
-.icon2{
-	width: 30px;
-	height: 30px;
-	border-radius: 20%;
-	position: absolute;
-	top: 10px;
-	left: 50px;
-	border: 0;
-	padding: 0;
-	background: none;
-	cursor: pointer;
-}
-
-.jump{
-	width: 2px;
-	height: 2px;
-	padding: 0px;
-	border-radius: 0px;
-	background-color: #ffffff;
-	color: #ffffff;
-	text-decoration: none;
-	display: inline-block;
-	cursor: pointer;
-	position: fixed;
-	bottom: 0px;
-	left: 0px;
-}
-
-.nav{
-	position: absolute;
-	top: 0px;
-	left: 0px;
-	width: 100%;
-	z-index: 11;
+i {
+	color: grey
 }
 nav {
-	z-index: 12;
+	font-size: medium;
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 11;
+	gap: 5px;
 	width: calc(100% - 100px);
 	height: 60px;
 	background-color: #2a83e9;
-	color: white;
+	color: #fff;
 	display: flex;
 	align-items: center;
 	justify-content: flex-start;
-	padding: 0px 50px;
+	padding: 0 50px
 }
-nav li>span,nav li>a>span {
-	display: block;
-	color: white;
-	text-decoration: none;
-	padding: 4px 10px;
-	line-height: 52px;
-	height: calc(100% - 8px);
-}
-nav li>span:hover,nav li>a>span:hover{
-	background-color: #2060a9;
-}
-nav li>span>a{
-	display: block;
-	width: 100%;
-	height: 100%;
-	margin: -4px -10px;
-	padding: 4px 10px;
-}
-nav ul {
+nav > ul {
 	height: 100%;
 	display: flex;
 	padding: 0;
+	margin: 0
 }
-nav li {
+nav > ul > li {
 	display: block;
-	list-style: none;
+	list-style: none
 }
-nav>ul>li:hover ul{
-	display: block;
+nav > ul > li > a {
+	display: flex;
+	color: #fff;
+	padding: 0 10px;
+	height: 100%;
+	align-items: center
 }
-nav>ul>li>ul{
-	z-index: 12;
-	background-color: #33c9e7;
-	display: none;
-	position:absolute;
-	top:60px;
-	width: 100%;
-	padding: 6px 0;
-	height: auto !important;
+nav > ul > li > a:hover {
+	background-color: #2060a9
 }
-nav>ul>li>ul>li>span,nav>ul>li>ul>li>a>span,nav>ul>li>ul>li>a{
-	background-color: #33a8e7;
-	line-height: 20px;
-	height: calc(100% - 8px);
+.icon1, .icon2 {
+	display: none
 }
-nav>ul>li>ul>li>span:hover,nav>ul>li>ul>li>a>span:hover{
-	background-color: rgb(60, 138, 226);
+.favico {
+	margin: 5px;
+	width: 45px;
+	height: 45px;
+	border-radius: 5px
 }
-[hidden]{
+[hidden] {
 	display: none !important;
-}
-.show1,.mob-only{
-	display: none;
-}
-.show0:hover>.show1{
-	display: block;
-}
-img,br,button{
-	user-select: none;
-	-webkit-user-select: none;
-	-moz-user-select: none;
-	-ms-user-select: none;
-	-webkit-user-drag: none;
-}
-body.sd * {
-	display: none !important;
-}
-body.sd, body.sd * {
-	overflow: hidden !important;
-}
-.agr{
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: calc(100% - 20px);
-	height: calc(100% - 20px);
-	padding: 10px;
-	display: none;
-	overflow-x: hidden !important;
-	overflow-y: auto !important;
-	color: #500000;
-	z-index: 21;
-}
-body.sd .agr{
-	display: block !important;
-	overflow-x: hidden !important;
-	overflow-y: auto !important;
-}
-body.sd .agr *{
-	display: block !important;
-}
-button{
-	background-color: transparent;
-	border: 1px solid black;
-	cursor: pointer;
-	padding: 9px;
-	border-radius: 5px;
-	background-color: #ad0000;
-	color: white;
-	font-weight: bold;
-}
-
-button:hover{
-	background-color: #900000;
-}
-
-button:active{
-	background-color: #9e0000;
-}
-button.nd{
-	background-color: #640000;
-}
-
-button.nd:hover{
-	background-color: #640000;
-}
-
-button.nd:active{
-	background-color: #640000;
+	opacity: 0 !important;
+	pointer-events: none !important;
+	visibility: hidden
 }

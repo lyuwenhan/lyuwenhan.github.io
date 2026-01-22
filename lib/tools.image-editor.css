@@ -65,3 +65,6 @@ button:disabled {
 .main:not(:has(.dragover)) > #dragOverlay {
 	display: none
 }
+.main > h3 {
+	margin: 0
+}

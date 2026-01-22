@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8" />
+		<title>Image Editor</title>
+		<link rel="icon" href="/lib/favicon.png" type="image/x-icon">
+		<link rel="stylesheet" href="main.css">
+	</head>
+
+	<body><a href="..">back</a>
+		<h3>Image editor</h3><input id="loadByUrl" placeholder="Load by url(enter to apply)">
+		<div id="drop">Drag image, click, or paste to upload</div><span>Force Background color(Remove Transparency):</span>
+		<ul id="foTr">
+			<li><label class="controls">Enable: <input type="checkbox" id="removeTrans"></label></li>
+			<li><span class="controls">Color:<input id="bgColor" type="color" value="#ffffff" /></span></li>
+		</ul><label class="controls">No Smoothing: <input type="checkbox" id="noSmooth"></label>
+		<div id="prev" hidden>
+			<div class="controls"><span>Size:</span><input id="setW" value="128" type="number" placeholder="width"><input id="setH" value="128" type="number" placeholder="height"></div><canvas id="canvas" hidden></canvas><img id="canvasDisplay">
+			<div class="controls"><button id="download" disabled="disabled">Download PNG</button> <button id="copy" disabled="disabled">Copy</button></div><input id="file" type="file" accept="image/*" hidden />
+		</div>
+		<div id="dragOverlay"></div>
+		<script src="main.js"></script>
+	</body>
+
+</html>

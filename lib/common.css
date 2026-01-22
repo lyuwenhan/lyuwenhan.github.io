@@ -66,9 +66,10 @@ nav > ul > li > a:hover {
 	display: none
 }
 .favico {
-	margin: 5px;
-	width: 45px;
-	height: 45px;
+	display: block;
+	margin: 10px;
+	width: 40px;
+	height: 40px;
 	border-radius: 5px
 }
 [hidden] {

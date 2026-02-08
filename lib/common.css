@@ -1,7 +1,7 @@
 body {
 	font-family: Consolas, Courier, monospace;
 	margin: 0;
-	font-size: 18px;
+	font-size: 18px
 }
 .main {
 	width: calc(100% - 60px);

@@ -52,5 +52,5 @@ button {
 	left: calc(var(--place) * (100% - 4px));
 	width: 4px;
 	height: 100%;
-	background-color: crimson;
+	background-color: #dc143c
 }

@@ -2,12 +2,13 @@
 <html>
 
 <head>
-	<title>Tools by Wenhan</title>
+	<title>Space Per Second Test</title>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="icon" href="/lib/favicon.png" type="image/x-icon">
 	<link rel="stylesheet" href="/lib/common.css">
 	<link rel="stylesheet" href="/lib/mobile.css" media="only screen and (max-width: 768px)">
+	<link rel="stylesheet" href="/lib/tools.spstest.css">
 </head>
 
 <body>
@@ -31,11 +32,15 @@
 	</nav>
 	<div class="main">
 		<a href=".." class="bt">back</a>
-		<h2>Tools</h2>
-		<a href="image-editor/" class="bt">Image Editor</a><br>
-		<a href="my-ip/" class="bt">My IP</a><br>
-		<a href="click-per-second-test/" class="bt">Click Per Second Test</a><br>
-		<a href="space-per-second-test/" class="bt">Space Per Second Test</a>
+		<h3>Space Per Second Test</h3>
+		<label>Test time: <input id="testTime" value="5" type="number" placeholder="time in seconds"> second</label>
+		<div id="testArea">
+			<div id="timeline"></div>
+			<span id="testText"></span>
+		</div>
+		<span id="cps"></span>
+		<button id="restart">Restart</button>
+		<script src="/lib/tools.spstest.js"></script>
 	</div>
 </body>
 

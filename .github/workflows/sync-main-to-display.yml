@@ -55,8 +55,7 @@ jobs:
       # 5. Remove files that must NOT exist in display
       - name: Remove excluded files
         run: |
-          rm -rf .github/workflows
-          rm -f nav.html
+          rm -rf .github/
 
       # 6. Commit & push if changed
       - name: Commit and push

@@ -46,7 +46,8 @@ nav {
 	display: flex;
 	align-items: center;
 	justify-content: flex-start;
-	padding: 0 50px
+	padding: 0 50px;
+	overflow: hidden;
 }
 nav > ul {
 	height: 100%
@@ -58,6 +59,9 @@ nav > ul, nav > ul > li > ul {
 	display: flex;
 	padding: 0;
 	margin: 0
+}
+nav > ul > li {
+	height: 60px
 }
 nav > ul > li, nav > ul > li > ul > li {
 	display: block;

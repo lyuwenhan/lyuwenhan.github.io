@@ -1,0 +1,67 @@
+name: Sync main to display
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-display
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout full history
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # 2. Ensure display branch exists
+      - name: Checkout or create display branch
+        run: |
+          if git show-ref --verify --quiet refs/heads/display; then
+            git checkout display
+          else
+            git checkout -b display
+          fi
+
+      # 3. Hard reset display to main (exact mirror)
+      - name: Sync display with main
+        run: |
+          git reset --hard origin/main
+
+      # 4. Inject nav.html into HTML placeholder
+      - name: Inject nav.html into HTML files
+        run: |
+          for f in $(find . -name "*.html" -type f); do
+            perl -0777 -i -pe '
+              my $nav = do {
+                local $/;
+                open my $fh, "<", "nav.html" or die "Cannot open nav.html";
+                <$fh>;
+              };
+              s|<nav class="nav-placeholder"></nav>|$nav|s;
+            ' "$f"
+          done
+
+      # 5. Commit & push if changed
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          git add .
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+
+          git commit -m "Sync from main (inject nav.html)"
+          git push origin display

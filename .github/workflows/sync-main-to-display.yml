@@ -23,8 +23,8 @@ jobs:
         with:
           fetch-depth: 0
 
-      # 2. Ensure display branch exists
-      - name: Checkout or create display branch
+      # 2. Checkout or create display branch
+      - name: Checkout display branch
         run: |
           if git show-ref --verify --quiet refs/heads/display; then
             git checkout display
@@ -32,15 +32,16 @@ jobs:
             git checkout -b display
           fi
 
-      # 3. Hard reset display to main (exact mirror)
-      - name: Sync display with main
+      # 3. Reset display to main (source of truth)
+      - name: Reset display to main
         run: |
           git reset --hard origin/main
 
-      # 4. Inject nav.html into HTML placeholder
-      - name: Inject nav.html into HTML files
+      # 4. Inject nav.html into HTML files
+      #    nav.html is still present at this point
+      - name: Inject nav into HTML
         run: |
-          for f in $(find . -name "*.html" -type f); do
+          find . -name "*.html" -type f -print0 | while IFS= read -r -d '' f; do
             perl -0777 -i -pe '
               my $nav = do {
                 local $/;
@@ -51,7 +52,13 @@ jobs:
             ' "$f"
           done
 
-      # 5. Commit & push if changed
+      # 5. Remove files that must NOT exist in display
+      - name: Remove excluded files
+        run: |
+          rm -rf .github/workflows
+          rm -f nav.html
+
+      # 6. Commit & push if changed
       - name: Commit and push
         run: |
           git config user.name "github-actions"
@@ -63,5 +70,5 @@ jobs:
             exit 0
           fi
 
-          git commit -m "Sync from main (inject nav.html)"
+          git commit -m "Sync from main (inject nav)"
           git push origin display

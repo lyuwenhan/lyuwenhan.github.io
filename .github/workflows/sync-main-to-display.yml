@@ -48,7 +48,7 @@ jobs:
                 open my $fh, "<", "nav.html" or die "Cannot open nav.html";
                 <$fh>;
               };
-              s|<nav class="nav-placeholder"></nav>|$nav|s;
+              s|^[[:space:]]*<nav\b[^>]*>.*?</nav>|$nav|sgm;
             ' "$f"
           done
 

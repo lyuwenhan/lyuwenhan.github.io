@@ -48,7 +48,7 @@ jobs:
                 open my $fh, "<", "nav.html" or die "Cannot open nav.html";
                 <$fh>;
               };
-              s|^[[:space:]]*<nav\b[^>]*>.*?</nav>|$nav|sgm;
+              s|(<div\s+id="nav"[^>]*>).*?(</div>)|$1\n$nav\n$2|sg;
             ' "$f"
           done
 

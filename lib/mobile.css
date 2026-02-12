@@ -19,7 +19,7 @@ nav > ul > li {
 nav > ul > li > ul {
 	position: relative;
 	left: 100%;
-	top: -60px;
+	top: -60px
 }
 .icon3, nav:hover > .icon1, nav:not(:hover) > :not(.icon1) {
 	display: none

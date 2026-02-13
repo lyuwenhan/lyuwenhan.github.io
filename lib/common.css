@@ -68,8 +68,11 @@ nav > ul > li > a, nav > ul > li > ul > li > a {
 	height: 100%;
 	align-items: center
 }
-nav > ul > li:hover > a, nav > ul > li > ul > li:hover > a {
+nav > ul > li:hover > a {
 	background-color: #2060a9
+}
+nav > ul > li > ul > li:hover > a {
+	background-color: #164e8f
 }
 nav > ul > li > ul {
 	position: absolute;

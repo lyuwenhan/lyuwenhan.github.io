@@ -93,3 +93,6 @@ nav > ul > li > ul > li > a {
 	pointer-events: none !important;
 	visibility: hidden !important
 }
+br {
+	user-select: none
+}

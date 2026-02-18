@@ -1,6 +1,9 @@
 name: Sync main to display
 
 on:
+  workflow_dispatch:
+  repository_dispatch:
+    types: [sync_display]
   push:
     branches:
       - main

@@ -95,3 +95,12 @@ nav > ul > li > ul > li > a {
 br {
 	user-select: none
 }
+details {
+	padding-left: 40px
+}
+details > summary:first-child {
+	margin-left: -40px
+}
+details > ul {
+	margin-left: -20px
+}

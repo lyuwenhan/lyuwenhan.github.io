@@ -104,3 +104,21 @@ details > summary:first-child {
 details > ul {
 	margin-left: -20px
 }
+#to-top {
+	display: block;
+	padding: 10px;
+	border: 1px solid black;
+	border-radius: 5px;
+	background-color: #eee;
+	position: fixed;
+	bottom: 20px;
+	right: 20px;
+}
+#top {
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 0;
+	width: 100%;
+	pointer-events: none
+}

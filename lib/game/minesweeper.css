@@ -8,12 +8,13 @@ table, td, th {
 #mineTd {
 	padding: 0;
 	display: flex;
-	justify-content: center
+	justify-content: center;
+	user-select: none
 }
 .mineEle {
-	width: 30px;
-	height: 30px;
-	padding: 0
+	width: 25px;
+	height: 25px;
+	padding: 0;
 }
 .mineEle > .mineEle2 {
 	width: 100%;
@@ -24,8 +25,8 @@ table, td, th {
 }
 .mineEle > .mineEle2 > svg {
 	display: block;
-	width: 28px;
-	height: 28px
+	width: 80%;
+	height: 80%
 }
 .mine-good {
 	background-color: #3ead3e90

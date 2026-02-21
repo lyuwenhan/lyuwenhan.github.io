@@ -4,7 +4,8 @@ body {
 	font-size: 18px
 }
 .main {
-	width: calc(100% - 60px);
+	width: max-content;
+	min-width: calc(100% - 60px);
 	padding: 30px;
 	margin-top: 60px
 }
@@ -112,7 +113,7 @@ details > ul {
 	background-color: #eee;
 	position: fixed;
 	bottom: 20px;
-	right: 20px;
+	right: 20px
 }
 #top {
 	position: absolute;

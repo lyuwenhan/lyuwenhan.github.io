@@ -14,7 +14,7 @@ table, td, th {
 .mineEle {
 	width: 25px;
 	height: 25px;
-	padding: 0;
+	padding: 0
 }
 .mineEle > .mineEle2 {
 	width: 100%;

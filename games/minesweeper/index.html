@@ -6,6 +6,7 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="icon" href="/lib/favicon.png" type="image/x-icon">
+	<link rel="stylesheet" href="/lib/game/minesweeper.css">
 	<link rel="stylesheet" href="/lib/common.css">
 	<link rel="stylesheet" href="/lib/mobile.css" media="only screen and (max-width: 768px)">
 </head>
@@ -23,12 +24,27 @@
 	</div>
 	<div class="main">
 		<a href=".." class="bt">back</a>
-		<h2>Games</h2>
-		<a href="/games/fishing/" class="bt">The Fishing Game</a><br>
-		<a href="/games/minesweeper/" class="bt">Mine Sweeper</a>
+		<h2>Mine Sweeper</h2>
+		<p id="stat"></p>
+		<table>
+			<thead>
+				<tr>
+					<th>Minesweeper</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td id="mineTd">
+						<table id="mineArea">
+						</table>
+					</td>
+				</tr>
+			</tbody>
+		</table>
 	</div>
 	<a id="to-top" href="#top" class="bt" hidden>Top</a>
 	<script src="/lib/main.js"></script>
+	<script src="/lib/game/minesweeper.js"></script>
 </body>
 
 </html>

@@ -13,6 +13,9 @@ body, code {
 	margin: 0 30px;
 	margin-top: 60px
 }
+.main>h2:first-child{
+	margin-top: 0;
+}
 a {
 	text-decoration: none
 }

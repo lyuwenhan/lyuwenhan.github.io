@@ -102,7 +102,7 @@ details {
 details > summary:first-child {
 	margin-left: -40px
 }
-details > ul {
+details > ul, details > ol {
 	margin-left: -20px
 }
 #to-top {

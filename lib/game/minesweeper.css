@@ -1,9 +1,5 @@
 table {
-	border-spacing: 0;
 	width: max-content
-}
-table, td, th {
-	border: 1px solid black
 }
 #mineTd {
 	padding: 0;

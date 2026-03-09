@@ -1,7 +1,9 @@
 body {
-	font-family: Consolas, Courier, monospace;
 	margin: 0;
 	font-size: 18px
+}
+body, code {
+	font-family: Consolas, Courier, monospace
 }
 .main {
 	width: max-content;
@@ -122,4 +124,43 @@ details > ul, details > ol {
 	height: 0;
 	width: 100%;
 	pointer-events: none
+}
+code.inline-code {
+	background-color: #f9f2f4;
+	color: #c6254e;
+	padding: 1px 4px;
+	border-radius: 4px;
+	font-size: 0.85em
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0
+}
+thead, tbody {
+	border: 2px solid black
+}
+th, td {
+	padding: 4px 6px;
+	border: 1px solid black
+}
+td:has(>table.innTable), th:has(>table.innTable) {
+	border: none
+}
+table.innTable {
+	border: none
+}
+table.innTable > tr {
+	border: none
+}
+table.innTable tr > td:first-child, table.innTable tr > th:first-child {
+	border-left: none
+}
+table.innTable tr > td:last-child, table.innTable tr > th:last-child {
+	border-right: none
+}
+table.innTable tr:first-child > td, table.innTable tr:first-child > th {
+	border-top: none
+}
+table.innTable tr:last-child > td, table.innTable tr:last-child > th {
+	border-bottom: none
 }

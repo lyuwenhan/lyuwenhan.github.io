@@ -1,3 +1,7 @@
+body, html {
+	width: 100%;
+	height: 100%
+}
 body {
 	margin: 0;
 	font-size: 18px
@@ -9,13 +13,12 @@ body, code {
 	white-space: nowrap;
 	width: calc(100% - 60px);
 	overflow-x: auto;
-	padding: 30px 0;
+	padding: 90px 0 30px;
 	margin: 0 30px;
-	margin-top: 60px;
 	min-height: calc(100% - 120px)
 }
-.main>h2:first-child{
-	margin-top: 0;
+.main > h2:first-child {
+	margin-top: 0
 }
 a {
 	text-decoration: none
@@ -110,13 +113,13 @@ details {
 details > summary:first-child {
 	margin-left: -40px
 }
-details > ul, details > ol {
+details > ol, details > ul {
 	margin-left: -20px
 }
 #to-top {
 	display: block;
 	padding: 10px;
-	border: 1px solid black;
+	border: 1px solid #000;
 	border-radius: 5px;
 	background-color: #eee;
 	position: fixed;
@@ -136,26 +139,23 @@ code.inline-code {
 	color: #c6254e;
 	padding: 1px 4px;
 	border-radius: 4px;
-	font-size: 0.85em
+	font-size: .85em
 }
 table {
 	border-collapse: collapse;
 	border-spacing: 0
 }
-thead, tbody {
-	border: 2px solid black
+tbody, thead {
+	border: 2px solid #000
 }
-th, td {
+td, th {
 	padding: 4px 6px;
-	border: 1px solid black
+	border: 1px solid #000
 }
 td:has(>table.innTable), th:has(>table.innTable) {
 	border: none
 }
-table.innTable {
-	border: none
-}
-table.innTable > tr {
+table.innTable, table.innTable > tr {
 	border: none
 }
 table.innTable tr > td:first-child, table.innTable tr > th:first-child {

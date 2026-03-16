@@ -18,7 +18,8 @@
 	background: #fff;
 	color: #666;
 	padding: 10px 20px;
-	user-select: none
+	user-select: none;
+	white-space: initial
 }
 #drop.dragover {
 	background: #eef
@@ -30,11 +31,10 @@
 }
 #canvasDisplay {
 	display: block;
-	max-width: 100%;
+	max-width: calc(100% - 2px);
 	border: 1px solid #ccc;
 	background: #f3f3f3;
-	image-rendering: pixelated;
-	image-rendering: crisp-edges
+	image-rendering: pixelated
 }
 #canvasDisplay:hover {
 	background: #eee

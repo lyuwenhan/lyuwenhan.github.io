@@ -152,7 +152,7 @@ setH.addEventListener("input", () => {
 	if (!setH.value) {
 		return
 	}
-	imgHeight = Math.max(1, Number(setH.value) || 1);
+	imgHeight = Math.max(1, Math.floor(Number(setH.value)) || 1);
 	imgWidth = Math.max(1, Math.round(realWidth * imgHeight / realHeight));
 	setH.value = imgHeight;
 	setW.value = imgWidth;
@@ -162,7 +162,7 @@ setW.addEventListener("input", () => {
 	if (!setW.value) {
 		return
 	}
-	imgWidth = Math.max(1, Number(setW.value) || 1);
+	imgWidth = Math.max(1, Math.floor(Number(setW.value)) || 1);
 	imgHeight = Math.max(1, Math.round(realHeight * imgWidth / realWidth));
 	setH.value = imgHeight;
 	setW.value = imgWidth;

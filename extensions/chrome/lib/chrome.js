@@ -24,31 +24,12 @@ fetch("/extensions/chrome/data/versions.json", {
 		ele.append(img);
 		ele.append(document.createElement("br"))
 	}
-	if (typeof converter === "undefined") {
-		const descEle = document.createElement("a");
-		descEle.href = `/extensions/chrome/data/assets/${e[0]}`;
-		descEle.innerText = `Full description`;
-		descEle.target = "_blank";
-		descEle.classList.add("bt");
-		ele.append(descEle)
-	} else {
-		const descEle = document.createElement("details");
-		const sumEle = document.createElement("summary");
-		sumEle.innerText = `Full description`;
-		descEle.append(sumEle);
-		descEle.addEventListener("toggle", async () => {
-			try {
-				const res = await fetch(`/extensions/chrome/data/assets/${e[0]}/README.md`);
-				if (res.ok) {
-					descEle.insertAdjacentHTML("beforeend", await mdToHtml(await res.text()));
-					Prism.highlightAllUnder(descEle)
-				}
-			} catch {}
-		}, {
-			once: true
-		});
-		ele.append(descEle)
-	}
+	const descEle = document.createElement("a");
+	descEle.href = `/extensions/chrome/data/assets/${e[0]}/`;
+	descEle.innerText = `Full description`;
+	descEle.target = "_blank";
+	descEle.classList.add("bt");
+	ele.append(descEle);
 	ele.append(document.createElement("br"));
 	const version = e[1].version;
 	if (e[1].href) {

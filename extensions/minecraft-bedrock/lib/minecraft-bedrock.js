@@ -24,6 +24,13 @@ fetch("/extensions/minecraft-bedrock/data/versions.json", {
 		ele.append(img);
 		ele.append(document.createElement("br"))
 	}
+	const descEle = document.createElement("a");
+	descEle.href = `/extensions/minecraft-bedrock/data/assets/${e[0]}/`;
+	descEle.innerText = `Full description`;
+	descEle.target = "_blank";
+	descEle.classList.add("bt");
+	ele.append(descEle);
+	ele.append(document.createElement("br"));
 	const aEle = document.createElement("a");
 	aEle.href = `/extensions/minecraft-bedrock/data/dist/${e[0]}.mcpack`;
 	if (e[1].version) {

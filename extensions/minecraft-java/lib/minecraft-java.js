@@ -1,16 +1,4 @@
 const linksEle = document.getElementById("links");
-const stepsEle = document.getElementById("steps");
-stepsEle.addEventListener("toggle", async () => {
-	try {
-		const res = await fetch(`/extensions/minecraft-java/data/next_steps.md`);
-		if (res.ok) {
-			stepsEle.insertAdjacentHTML("beforeend", await mdToHtml(await res.text()));
-			Prism.highlightAllUnder(stepsEle)
-		}
-	} catch {}
-}, {
-	once: true
-});
 fetch("/extensions/minecraft-java/data/versions.json", {
 	cache: "reload"
 }).then(response => response.json()).then(e => Object.entries(e).filter(e => e[0] && e[1]?.versions?.length).forEach(e => {
@@ -36,40 +24,22 @@ fetch("/extensions/minecraft-java/data/versions.json", {
 		ele.append(img)
 	}
 	ele.append(document.createElement("br"));
-	if (typeof converter === "undefined") {
-		const descEle = document.createElement("a");
-		descEle.href = `/extensions/minecraft-java/data/assets/${e[0]}`;
-		descEle.innerText = `Full description`;
-		descEle.target = "_blank";
-		descEle.classList.add("bt");
-		ele.append(descEle)
-	} else {
-		const descEle = document.createElement("details");
-		const sumEle = document.createElement("summary");
-		sumEle.innerText = `Full description`;
-		descEle.append(sumEle);
-		descEle.addEventListener("toggle", async () => {
-			try {
-				const res = await fetch(`/extensions/minecraft-java/data/assets/${e[0]}/README.md`);
-				if (res.ok) {
-					descEle.insertAdjacentHTML("beforeend", await mdToHtml(await res.text()));
-					Prism.highlightAllUnder(descEle)
-				}
-			} catch {}
-		}, {
-			once: true
-		});
-		ele.append(descEle)
-	}
-	if (e[1].link) {
-		ele.append(document.createElement("br"));
-		const modrEle = document.createElement("a");
-		modrEle.href = e[1].link;
-		modrEle.innerText = `View on Modrinth`;
-		modrEle.target = "_blank";
-		modrEle.classList.add("bt");
-		ele.append(modrEle)
-	}
+	const descEle = document.createElement("a");
+	descEle.href = `/extensions/minecraft-java/data/assets/${e[0]}/`;
+	descEle.innerText = `Full description`;
+	descEle.target = "_blank";
+	descEle.classList.add("bt");
+	ele.append(descEle);
+	ele.append(document.createElement("br"));
+	Object.entries(e[1].link).forEach(([site, href]) => {
+		const linkEle = document.createElement("a");
+		linkEle.href = href;
+		linkEle.innerText = `View on ${site}`;
+		linkEle.target = "_blank";
+		linkEle.classList.add("bt");
+		ele.append(linkEle);
+		ele.append(document.createElement("br"))
+	});
 	const ele3 = document.createElement("ul");
 	const rev = e[1].versions.toReversed();
 	let verI = 5;

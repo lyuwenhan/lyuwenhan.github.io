@@ -183,3 +183,21 @@ table.innTable tr:last-child > td, table.innTable tr:last-child > th {
 summary > h1, summary > h2, summary > h3, summary > h4, summary > h5, summary > h6 {
 	display: inline
 }
+.lisum {
+	list-style-type: none
+}
+.lisum summary {
+	list-style-position: outside
+}
+.lisum:not(:has(> details[open])) ~ li {
+	display: none
+}
+.imgPreview {
+	width: 100px;
+	background-color: #f2f2f2;
+	border: 1px solid #000;
+	border-radius: 5px
+}
+.imgPreview:hover {
+	background-color: #d9d9d9
+}

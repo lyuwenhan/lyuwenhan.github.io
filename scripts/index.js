@@ -9,14 +9,19 @@ function replaceNav(s) {
 const template = replaceNav(fs.readFileSync("template.html", "utf8"));
 
 function replaceTemplate(s, options) {
-	options = {
+	const {
+		title,
+		head,
+		content,
+		body
+	} = {
 		title: "",
 		head: "",
 		content: "",
 		body: "",
 		...options
 	};
-	return s.replace("@title", title).replace("<!-- @head -->", head).replace("<!-- @content -->", content).replace("<!-- @body -->", body)
+	return s.replace("@title", title).replace("\x3c!-- @head --\x3e", head).replace("\x3c!-- @content --\x3e", content).replace("\x3c!-- @body --\x3e", body)
 }
 const action = {
 	".html": p => {

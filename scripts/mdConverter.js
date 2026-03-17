@@ -1,8 +1,8 @@
-import MarkdownIt from "markdown-it";
-import {
+const MarkdownIt = require("markdown-it");
+const {
 	JSDOM
-} from "jsdom";
-import createDOMPurify from "dompurify";
+} = require("jsdom");
+const createDOMPurify = require("dompurify");
 const window = new JSDOM("").window;
 const DOMPurify = createDOMPurify(window);
 const md = new MarkdownIt({
@@ -38,10 +38,10 @@ md.renderer.rules.code_inline = function(tokens, idx, options, env, self) {
 };
 const ALLOWED_TAGS = ["a", "p", "br", "strong", "em", "ul", "ol", "li", "blockquote", "code", "pre", "h1", "h2", "h3", "h4", "h5", "h6", "hr", "table", "thead", "tbody", "tr", "th", "td", "span", "div", "img", "del", "sup", "sub", "kbd", "mark", "details", "summary"];
 const ALLOWED_ATTR = ["href", "title", "class", "src", "alt", "width", "height", "loading", "id"];
-export default function mdToHtml(markdown) {
+module.exports = function mdToHtml(markdown) {
 	const dirty = md.render(String(markdown));
 	return DOMPurify.sanitize(dirty, {
 		ALLOWED_TAGS,
 		ALLOWED_ATTR
 	})
-}
+};

@@ -6,6 +6,15 @@
   "directories": {
     "lib": "lib"
   },
+  "dependencies": {
+    "argparse": "^2.0.1",
+    "entities": "^4.5.0",
+    "linkify-it": "^5.0.0",
+    "markdown-it": "^14.1.1",
+    "mdurl": "^2.0.0",
+    "punycode.js": "^2.3.1",
+    "uc.micro": "^2.1.0"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -15,15 +24,10 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "type": "commonjs",
   "bugs": {
     "url": "https://github.com/lyuwenhan/lyuwenhan.github.io/issues"
   },
-  "homepage": "https://github.com/lyuwenhan/lyuwenhan.github.io#readme",
-  "dependencies": {
-    "dompurify": "^3.3.3",
-    "jsdom": "^29.0.0",
-    "markdown-it": "^14.1.1"
-  }
+  "homepage": "https://github.com/lyuwenhan/lyuwenhan.github.io#readme"
 }

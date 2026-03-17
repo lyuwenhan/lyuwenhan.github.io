@@ -38,7 +38,9 @@ jobs:
 
       - name: Prepare
         run: |
+          npm install
           node scripts/index.js
+
           rm -rf .github/ nav.html template.html node_modules/ package.json package-lock.json
 
       - name: Upload Pages artifact

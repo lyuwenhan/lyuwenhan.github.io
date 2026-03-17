@@ -1,0 +1,29 @@
+{
+  "name": "lyuwenhan.github.io",
+  "version": "1.0.0",
+  "description": "This is my personal homepage, hosted on GitHub Pages. It showcases various projects I've developed, including games, tools, and extensions.",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lyuwenhan/lyuwenhan.github.io.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/lyuwenhan/lyuwenhan.github.io/issues"
+  },
+  "homepage": "https://github.com/lyuwenhan/lyuwenhan.github.io#readme",
+  "dependencies": {
+    "dompurify": "^3.3.3",
+    "jsdom": "^29.0.0",
+    "markdown-it": "^14.1.1"
+  }
+}

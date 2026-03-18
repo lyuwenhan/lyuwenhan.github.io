@@ -34,7 +34,7 @@ fetch("/extensions/chrome/data/versions.json", {
 	if (e[1].href) {
 		const aEle = document.createElement("a");
 		aEle.href = e[1].href;
-		aEle.innerText = `Download From Chrome web store`;
+		aEle.innerText = `View on Chrome web store`;
 		aEle.target = "_blank";
 		aEle.classList.add("bt");
 		ele.append(aEle);

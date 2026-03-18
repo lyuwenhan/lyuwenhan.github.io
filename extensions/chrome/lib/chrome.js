@@ -31,11 +31,10 @@ fetch("/extensions/chrome/data/versions.json", {
 	descEle.classList.add("bt");
 	ele.append(descEle);
 	ele.append(document.createElement("br"));
-	const version = e[1].version;
 	if (e[1].href) {
 		const aEle = document.createElement("a");
 		aEle.href = e[1].href;
-		aEle.innerText = `Download From Chrome web store (version ${version})`;
+		aEle.innerText = `Download From Chrome web store`;
 		aEle.target = "_blank";
 		aEle.classList.add("bt");
 		ele.append(aEle);
@@ -43,7 +42,7 @@ fetch("/extensions/chrome/data/versions.json", {
 	}
 	const a2Ele = document.createElement("a");
 	a2Ele.href = `/extensions/chrome/data/dist/${e[0]}.zip`;
-	a2Ele.innerText = `Download ZIP`;
+	a2Ele.innerText = `Download (version ${e[1].version})`;
 	a2Ele.download = "";
 	a2Ele.classList.add("bt");
 	ele.append(a2Ele);

@@ -41,6 +41,11 @@ fetch("/extensions/minecraft-java/data/versions.json", {
 		ele.append(document.createElement("br"))
 	});
 	const ele3 = document.createElement("ul");
+	const txtLiEle = document.createElement("li");
+	const txtEle = document.createElement("a");
+	txtEle.innerText = `Download:`;
+	txtLiEle.append(txtEle);
+	ele3.append(txtLiEle);
 	const rev = e[1].versions.toReversed();
 	let verI = 5;
 	let lVer = undefined;

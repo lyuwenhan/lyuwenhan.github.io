@@ -2,8 +2,6 @@ name: Build and deploy Pages
 
 on:
   workflow_dispatch:
-  repository_dispatch:
-    types: [sync_display]
   push:
     branches:
       - main

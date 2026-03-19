@@ -25,7 +25,7 @@ fetch("/extensions/vscode/data/versions.json", {
 		ele.append(document.createElement("br"))
 	}
 	const descEle = document.createElement("a");
-	descEle.href = `/extensions/vscode/data/assets/${e[0]}/`;
+	descEle.href = `/extensions/vscode/data/assets/${e[0]}/README/README.html`;
 	descEle.innerText = `Full description`;
 	descEle.target = "_blank";
 	descEle.classList.add("bt");

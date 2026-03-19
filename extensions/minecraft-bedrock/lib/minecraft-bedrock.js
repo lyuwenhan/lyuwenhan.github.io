@@ -31,6 +31,15 @@ fetch("/extensions/minecraft-bedrock/data/versions.json", {
 	descEle.classList.add("bt");
 	ele.append(descEle);
 	ele.append(document.createElement("br"));
+	Object.entries(e[1].link).forEach(([site, href]) => {
+		const linkEle = document.createElement("a");
+		linkEle.href = href;
+		linkEle.innerText = `View on ${site}`;
+		linkEle.target = "_blank";
+		linkEle.classList.add("bt");
+		ele.append(linkEle);
+		ele.append(document.createElement("br"))
+	});
 	const aEle = document.createElement("a");
 	aEle.href = `/extensions/minecraft-bedrock/data/dist/${e[0]}.mcpack`;
 	aEle.innerText = `Download (version ${e[1].version})`

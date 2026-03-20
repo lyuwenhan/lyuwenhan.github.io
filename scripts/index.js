@@ -67,4 +67,5 @@ function walk(dir) {
 		}
 	}
 }
+fs.renameSync("extensions/minecraft-java/data/next_steps.md", "extensions/minecraft-java/next_steps.md");
 walk(".");

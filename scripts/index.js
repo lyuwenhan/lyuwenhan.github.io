@@ -48,7 +48,7 @@ const action = {
 			head: "",
 			content: mdConverter(s),
 			body: "",
-			md: p
+			md: "/" + p
 		});
 		out.forEach(p => fs.writeFileSync(p, s))
 	}

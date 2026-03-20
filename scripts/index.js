@@ -44,7 +44,7 @@ const action = {
 			return
 		}
 		s = replaceTemplate(template, {
-			title: base,
+			title: base.replace(/_/g, " "),
 			head: "",
 			content: mdConverter(s),
 			body: "",

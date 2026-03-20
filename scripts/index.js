@@ -13,15 +13,17 @@ function replaceTemplate(s, options) {
 		title,
 		head,
 		content,
-		body
+		body,
+		md
 	} = {
 		title: "",
 		head: "",
 		content: "",
 		body: "",
+		md: "",
 		...options
 	};
-	return s.replace("@title", title).replace("\x3c!-- @head --\x3e", head).replace("\x3c!-- @content --\x3e", content).replace("\x3c!-- @body --\x3e", body)
+	return s.replace("@title", title).replace("\x3c!-- @head --\x3e", head).replace("\x3c!-- @content --\x3e", (md ? `<a href="${md}" class="bt">Source file</a><br>` : "") + content).replace("\x3c!-- @body --\x3e", body)
 }
 const action = {
 	".html": p => {
@@ -45,7 +47,8 @@ const action = {
 			title: base,
 			head: "",
 			content: mdConverter(s),
-			body: ""
+			body: "",
+			md: p
 		});
 		out.forEach(p => fs.writeFileSync(p, s))
 	}

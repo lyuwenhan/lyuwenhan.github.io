@@ -31,6 +31,15 @@ fetch("/extensions/vscode/data/versions.json", {
 	descEle.classList.add("bt");
 	ele.append(descEle);
 	ele.append(document.createElement("br"));
+	Object.entries(e[1].link).forEach(([site, href]) => {
+		const linkEle = document.createElement("a");
+		linkEle.href = href;
+		linkEle.innerText = `View on ${site}`;
+		linkEle.target = "_blank";
+		linkEle.classList.add("bt");
+		ele.append(linkEle);
+		ele.append(document.createElement("br"))
+	});
 	const ele3 = document.createElement("ul");
 	const txtLiEle = document.createElement("li");
 	const txtEle = document.createElement("a");

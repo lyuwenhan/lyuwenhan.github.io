@@ -6,7 +6,9 @@ const mdConverter = require("./mdConverter");
 function replaceNav(s) {
 	return s.replace(/(<div\s+id="nav"[^>]*>)[\s\S]*?(<\/div>)/g, `$1\n${nav}\n$2`)
 }
-const template = replaceNav(fs.readFileSync("template.html", "utf8"));
+const template = replaceNav(fs.readFileSync("template/template.html", "utf8"));
+const markdown_js = replaceNav(fs.readFileSync("template/markdown.js.html", "utf8"));
+const markdown_css = replaceNav(fs.readFileSync("template/markdown.css.html", "utf8"));
 
 function replaceTemplate(s, options) {
 	const {
@@ -14,16 +16,16 @@ function replaceTemplate(s, options) {
 		head,
 		content,
 		body,
-		md
+		source
 	} = {
 		title: "",
 		head: "",
 		content: "",
 		body: "",
-		md: "",
+		source: "",
 		...options
 	};
-	return s.replace("@title", title).replace("\x3c!-- @head --\x3e", head).replace("\x3c!-- @content --\x3e", (md ? `<a href="${md}" class="bt">Source file</a><br>` : "") + content).replace("\x3c!-- @body --\x3e", body)
+	return s.replace("@title", title).replace("\x3c!-- @head --\x3e", head).replace("\x3c!-- @content --\x3e", (source ? `<a href="${source}" class="bt">Source file</a><br>` : "") + content).replace("\x3c!-- @body --\x3e", body)
 }
 const action = {
 	".html": p => {
@@ -45,10 +47,10 @@ const action = {
 		}
 		s = replaceTemplate(template, {
 			title: base.replace(/_/g, " "),
-			head: "",
+			head: markdown_js + markdown_css,
 			content: mdConverter(s),
 			body: "",
-			md: "/" + p
+			source: "/" + p
 		});
 		out.forEach(p => fs.writeFileSync(p, s))
 	}

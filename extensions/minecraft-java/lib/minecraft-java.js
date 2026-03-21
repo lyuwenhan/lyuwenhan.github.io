@@ -22,8 +22,8 @@ fetch("/extensions/minecraft-java/data/versions.json", {
 		img.classList.add("imgPreview");
 		img.src = `/extensions/minecraft-java/data/assets/${e[0]}/icon.png`;
 		ele.append(img)
+		ele.append(document.createElement("br"));
 	}
-	ele.append(document.createElement("br"));
 	const descEle = document.createElement("a");
 	descEle.href = `/extensions/minecraft-java/data/assets/${e[0]}/README/README.html`;
 	descEle.innerText = `Full description`;

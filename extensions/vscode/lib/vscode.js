@@ -40,7 +40,7 @@ fetch("/extensions/vscode/data/versions.json", {
 		ele.append(linkEle);
 		ele.append(document.createElement("br"))
 	});
-	if(e[1].versions?.length){
+	if (e[1].versions?.length) {
 		const ele3 = document.createElement("ul");
 		const txtLiEle = document.createElement("li");
 		const txtEle = document.createElement("a");
@@ -72,7 +72,7 @@ fetch("/extensions/vscode/data/versions.json", {
 		if (child) {
 			child.insertAdjacentHTML("beforebegin", '<li class="lisum"><details><summary>Historical versions</summary></details></li>')
 		}
-		ele.append(ele3);
+		ele.append(ele3)
 	}
 	linksEle.append(ele)
 }));

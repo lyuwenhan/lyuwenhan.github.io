@@ -40,13 +40,13 @@ fetch("/extensions/minecraft-bedrock/data/versions.json", {
 		ele.append(linkEle);
 		ele.append(document.createElement("br"))
 	});
-	if(e[1].version){
+	if (e[1].version) {
 		const aEle = document.createElement("a");
 		aEle.href = `/extensions/minecraft-bedrock/data/dist/${e[0]}.mcpack`;
-		aEle.innerText = `Download (version ${e[1].version})`
+		aEle.innerText = `Download (version ${e[1].version})`;
 		aEle.download = "";
 		aEle.classList.add("bt");
-		ele.append(aEle);
+		ele.append(aEle)
 	}
 	linksEle.append(ele)
 }));

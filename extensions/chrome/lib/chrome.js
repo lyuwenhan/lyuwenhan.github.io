@@ -40,13 +40,13 @@ fetch("/extensions/chrome/data/versions.json", {
 		ele.append(linkEle);
 		ele.append(document.createElement("br"))
 	});
-	if(e[1].version){
+	if (e[1].version) {
 		const aEle = document.createElement("a");
 		aEle.href = `/extensions/chrome/data/dist/${e[0]}.zip`;
 		aEle.innerText = `Download (version ${e[1].version})`;
 		aEle.download = "";
 		aEle.classList.add("bt");
-		ele.append(aEle);
+		ele.append(aEle)
 	}
 	linksEle.append(ele)
 }));

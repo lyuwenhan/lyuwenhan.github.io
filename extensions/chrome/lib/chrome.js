@@ -31,23 +31,20 @@ fetch("/extensions/chrome/data/versions.json", {
 	descEle.classList.add("bt");
 	ele.append(descEle);
 	ele.append(document.createElement("br"));
-	if (e[1].href) {
-		const aEle = document.createElement("a");
-		aEle.href = e[1].href;
-		aEle.innerText = `View on Chrome web store`;
-		aEle.target = "_blank";
-		aEle.classList.add("bt");
-		ele.append(aEle);
+	Object.entries(e[1].link).forEach(([site, href]) => {
+		const linkEle = document.createElement("a");
+		linkEle.href = href;
+		linkEle.innerText = `View on ${site}`;
+		linkEle.target = "_blank";
+		linkEle.classList.add("bt");
+		ele.append(linkEle);
 		ele.append(document.createElement("br"))
-	}
-	const a2Ele = document.createElement("a");
-	a2Ele.href = `/extensions/chrome/data/dist/${e[0]}.zip`;
-	a2Ele.innerText = `Download (version ${e[1].version})`;
-	a2Ele.download = "";
-	a2Ele.classList.add("bt");
-	ele.append(a2Ele);
-	if (versions.length <= 5) {
-		ele.open = true
-	}
+	});
+	const aEle = document.createElement("a");
+	aEle.href = `/extensions/chrome/data/dist/${e[0]}.zip`;
+	aEle.innerText = `Download (version ${e[1].version})`;
+	aEle.download = "";
+	aEle.classList.add("bt");
+	ele.append(aEle);
 	linksEle.append(ele)
 }));

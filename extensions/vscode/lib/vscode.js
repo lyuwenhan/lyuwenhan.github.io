@@ -1,7 +1,7 @@
 const linksEle = document.getElementById("links");
 fetch("/extensions/vscode/data/versions.json", {
 	cache: "reload"
-}).then(response => response.json()).then(e => Object.entries(e).filter(e => e[0] && e[1]?.versions?.length).forEach(e => {
+}).then(response => response.json()).then(e => Object.entries(e).filter(e => e[0]).forEach(e => {
 	const ele = document.createElement("details");
 	ele.id = "links-" + e[0];
 	ele.classList.add("linksEle");
@@ -40,37 +40,39 @@ fetch("/extensions/vscode/data/versions.json", {
 		ele.append(linkEle);
 		ele.append(document.createElement("br"))
 	});
-	const ele3 = document.createElement("ul");
-	const txtLiEle = document.createElement("li");
-	const txtEle = document.createElement("a");
-	txtEle.innerText = `Download:`;
-	txtLiEle.append(txtEle);
-	ele3.append(txtLiEle);
-	const rev = e[1].versions.toReversed();
-	let verI = 5;
-	let lVer = undefined;
-	for (let i = 0; i < 7 && i < rev.length; i++) {
-		const ver = rev[i].split(".");
-		if (lVer !== undefined && (ver[0] !== lVer[0] || ver[1] !== lVer[1])) {
-			verI = i;
-			break
+	if(e[1].versions?.length){
+		const ele3 = document.createElement("ul");
+		const txtLiEle = document.createElement("li");
+		const txtEle = document.createElement("a");
+		txtEle.innerText = `Download:`;
+		txtLiEle.append(txtEle);
+		ele3.append(txtLiEle);
+		const rev = e[1].versions.toReversed();
+		let verI = 5;
+		let lVer = undefined;
+		for (let i = 0; i < 7 && i < rev.length; i++) {
+			const ver = rev[i].split(".");
+			if (lVer !== undefined && (ver[0] !== lVer[0] || ver[1] !== lVer[1])) {
+				verI = i;
+				break
+			}
+			lVer = ver
 		}
-		lVer = ver
+		rev.forEach((version, i) => {
+			const liEle = document.createElement("li");
+			const aEle = document.createElement("a");
+			aEle.href = `/extensions/vscode/data/dist/${e[0]}-${version}.vsix`;
+			aEle.innerText = `Version ${version}`;
+			aEle.download = "";
+			aEle.classList.add("bt");
+			liEle.append(aEle);
+			ele3.append(liEle)
+		});
+		const child = ele3.children[verI];
+		if (child) {
+			child.insertAdjacentHTML("beforebegin", '<li class="lisum"><details><summary>Historical versions</summary></details></li>')
+		}
+		ele.append(ele3);
 	}
-	rev.forEach((version, i) => {
-		const liEle = document.createElement("li");
-		const aEle = document.createElement("a");
-		aEle.href = `/extensions/vscode/data/dist/${e[0]}-${version}.vsix`;
-		aEle.innerText = `Version ${version}`;
-		aEle.download = "";
-		aEle.classList.add("bt");
-		liEle.append(aEle);
-		ele3.append(liEle)
-	});
-	const child = ele3.children[verI];
-	if (child) {
-		child.insertAdjacentHTML("beforebegin", '<li class="lisum"><details><summary>Historical versions</summary></details></li>')
-	}
-	ele.append(ele3);
 	linksEle.append(ele)
 }));

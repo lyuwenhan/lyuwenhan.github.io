@@ -1,7 +1,7 @@
 const linksEle = document.getElementById("links");
 fetch("/extensions/chrome/data/versions.json", {
 	cache: "reload"
-}).then(response => response.json()).then(e => Object.entries(e)).then(versions => versions.filter(e => e[0]).forEach(e => {
+}).then(response => response.json()).then(e => Object.entries(e).filter(e => e[0]).forEach(e => {
 	const ele = document.createElement("details");
 	ele.id = "links-" + e[0];
 	ele.classList.add("linksEle");
@@ -40,11 +40,13 @@ fetch("/extensions/chrome/data/versions.json", {
 		ele.append(linkEle);
 		ele.append(document.createElement("br"))
 	});
-	const aEle = document.createElement("a");
-	aEle.href = `/extensions/chrome/data/dist/${e[0]}.zip`;
-	aEle.innerText = `Download (version ${e[1].version})`;
-	aEle.download = "";
-	aEle.classList.add("bt");
-	ele.append(aEle);
+	if(e[1].version){
+		const aEle = document.createElement("a");
+		aEle.href = `/extensions/chrome/data/dist/${e[0]}.zip`;
+		aEle.innerText = `Download (version ${e[1].version})`;
+		aEle.download = "";
+		aEle.classList.add("bt");
+		ele.append(aEle);
+	}
 	linksEle.append(ele)
 }));

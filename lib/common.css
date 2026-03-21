@@ -170,16 +170,6 @@ table.innTable tr:first-child > td, table.innTable tr:first-child > th {
 table.innTable tr:last-child > td, table.innTable tr:last-child > th {
 	border-bottom: none
 }
-.code-toolbar {
-	width: 100%;
-	margin: 0 auto;
-	box-sizing: border-box
-}
-.code-toolbar > pre {
-	border: 1px solid #ccc;
-	border-radius: 8px;
-	overflow: hidden
-}
 summary > h1, summary > h2, summary > h3, summary > h4, summary > h5, summary > h6 {
 	display: inline
 }

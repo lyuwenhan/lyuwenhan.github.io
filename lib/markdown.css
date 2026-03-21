@@ -1,0 +1,14 @@
+.code-toolbar {
+	width: 100%;
+	margin: 0 auto;
+	box-sizing: border-box
+}
+.code-toolbar > pre {
+	border: 1px solid #ccc;
+	border-radius: 8px;
+	overflow: hidden
+}
+.code-toolbar > .toolbar {
+	display: flex;
+	gap: 6px
+}

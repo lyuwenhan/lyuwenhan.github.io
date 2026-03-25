@@ -2,6 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const nav = fs.readFileSync("nav.html", "utf8");
 const mdConverter = require("./mdConverter");
+const createLinks = require("./createLinks");
 
 function replaceNav(s) {
 	return s.replace(/(<div\s+id="nav"[^>]*>)[\s\S]*?(<\/div>)/g, `$1\n${nav}\n$2`)
@@ -70,4 +71,19 @@ function walk(dir) {
 	}
 }
 fs.renameSync("extensions/minecraft-java/data/next_steps.md", "extensions/minecraft-java/next_steps.md");
+for (const entry of fs.readdirSync("extensions", {
+		withFileTypes: true
+	}) || []) {
+	if (!entry.isDirectory()) {
+		continue
+	}
+	const htmlPath = path.join("extensions", entry.name, "index.html");
+	const dataPath = path.join("extensions", entry.name, "data", "versions.json");
+	if (!fs.existsSync(htmlPath) || !fs.existsSync(dataPath)) {
+		continue
+	}
+	const content = fs.readFileSync(htmlPath, "utf8");
+	const data = JSON.parse(fs.readFileSync(dataPath, "utf8"));
+	fs.writeFileSync(htmlPath, content.replace("\x3c!-- @links --\x3e", createLinks(data, entry.name, data.data?.ext || "zip")))
+}
 walk(".");

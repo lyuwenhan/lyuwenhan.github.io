@@ -39,7 +39,7 @@ jobs:
           npm install
           node scripts/index.js
 
-          rm -rf .github/ nav.html template.html node_modules/ package.json package-lock.json
+          rm -rf .github/ nav.html template/ node_modules/ package.json package-lock.json .gitignore
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

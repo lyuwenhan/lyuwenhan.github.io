@@ -26,7 +26,7 @@ function replaceTemplate(s, options) {
 		source: "",
 		...options
 	};
-	return s.replace("@title", title).replace("\x3c!-- @head --\x3e", head).replace("\x3c!-- @content --\x3e", (source ? `<a href="${source}" class="bt">Source file</a><br>` : "") + content).replace("\x3c!-- @body --\x3e", body)
+	return s.replace("@title", title).replace("\x3c!-- @head --\x3e", head).replace("\x3c!-- @content --\x3e", (source ? `<a href="${source}" class="bt" target="_blank">Source file</a><br>` : "") + content).replace("\x3c!-- @body --\x3e", body)
 }
 const action = {
 	".html": p => {

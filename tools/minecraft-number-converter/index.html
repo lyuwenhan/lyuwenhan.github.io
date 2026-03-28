@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Minecraft Number Converter</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="icon" href="/lib/favicon.png" type="image/x-icon">
+	<link rel="stylesheet" href="/lib/common.css">
+	<link rel="stylesheet" href="/lib/mobile.css" media="only screen and (max-width: 768px)">
+</head>
+
+<body>
+	<div id="top"></div>
+	<div id="nav">
+		<nav>
+			<ul>
+				<li>
+					<a href="/">Home</a>
+				</li>
+			</ul>
+		</nav>
+	</div>
+	<div class="main">
+		<a href=".." class="bt">Back</a>
+		<h2>Minecraft Number Converter</h2>
+		<label><input type="number" id="thing1-1" placeholder="0"><span> items = </span><input readonly id="result1-1" placeholder="0"><span> stacks + </span><input readonly id="result1-2" placeholder="0"><span> items.</span></label><br><br>
+		<label><input type="number" id="thing2-1" placeholder="0"><span> stacks + </span><input type="number" id="thing2-2" placeholder="0"><span> items = </span><input readonly id="result2-1" placeholder="0"><span> items.</span></label><br><br>
+		<label><input type="number" id="thing3-1" placeholder="0"><span> logs + </span><input type="number" id="thing3-2" placeholder="0"><span> items = </span><input readonly id="result3-1" placeholder="0"><span> planks.</span></label><br><br>
+		<label><input type="number" id="thing4-1" placeholder="0"><span> planks = </span><input readonly id="result4-1" placeholder="0"><span> logs + </span><input readonly id="result4-2" placeholder="0"><span> items.</span></label><br><br>
+	</div>
+	<a id="to-top" href="#top" class="bt" hidden>Top</a>
+	<script src="/lib/main.js"></script>
+	<script src="lib/minecraft-number-converter.js"></script>
+</body>
+
+</html>

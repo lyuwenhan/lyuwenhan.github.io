@@ -13,6 +13,7 @@ This is my personal homepage, hosted on GitHub Pages. It showcases various proje
 - [My IP](https://lyuwenhan.github.io/tools/my-ip/) - Display your current IP address.
 - [Click Speed Test](https://lyuwenhan.github.io/tools/click-speed-test/) - Test your clicking speed.
 - [Spacebar Speed Test](https://lyuwenhan.github.io/tools/spacebar-speed-test/) - Test your spacebar pressing speed.
+- [Minecraft Number Converter](https://lyuwenhan.github.io/tools/minecraft-number-converter/) - Converts item quantities between different forms and units.
 
 ### Extensions
 - [VS Code Extensions](https://lyuwenhan.github.io/extensions/vscode/) - Collection of VS Code extensions I've created.
@@ -31,6 +32,7 @@ This is my personal homepage, hosted on GitHub Pages. It showcases various proje
 - [My IP](https://github.com/lyuwenhan/lyuwenhan.github.io/tree/main/tools/my-ip/)
 - [Click Speed Test](https://github.com/lyuwenhan/lyuwenhan.github.io/tree/main/tools/click-speed-test/)
 - [Spacebar Speed Test](https://github.com/lyuwenhan/lyuwenhan.github.io/tree/main/tools/spacebar-speed-test/)
+- [Minecraft Number Converter](https://github.com/lyuwenhan/lyuwenhan.github.io/tree/main/tools/minecraft-number-converter/)
 
 ### Extensions
 - [VS Code Extensions](https://github.com/lyuwenhan/vscode-extensions/tree/main/)

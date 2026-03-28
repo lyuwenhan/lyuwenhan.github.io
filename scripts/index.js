@@ -74,6 +74,7 @@ function walk(dir) {
 	}
 }
 fs.renameSync("extensions/minecraft-java/data/next_steps.md", "extensions/minecraft-java/next_steps.md");
+fs.copyFile("LICENSE", "LICENSE.txt");
 for (const entry of fs.readdirSync("extensions", {
 		withFileTypes: true
 	}) || []) {

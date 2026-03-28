@@ -17,16 +17,18 @@ function replaceTemplate(s, options) {
 		head,
 		content,
 		body,
-		source
+		source,
+		back
 	} = {
 		title: "",
 		head: "",
 		content: "",
 		body: "",
 		source: "",
+		back: "..",
 		...options
 	};
-	return s.replace("@title", title).replace("\x3c!-- @head --\x3e", head).replace("\x3c!-- @content --\x3e", (source ? `<a href="${source}" class="bt" target="_blank">Source file</a><br>` : "") + content).replace("\x3c!-- @body --\x3e", body)
+	return s.replace("@title", title).replace("\x3c!-- @head --\x3e", head).replace("\x3c!-- @content --\x3e", `<a href="${back}" class="bt">Back</a><br>\n` + (source ? `<a href="${source}" class="bt" target="_blank">Source file</a><br>\n` : "") + content).replace("\x3c!-- @body --\x3e", body)
 }
 const action = {
 	".html": p => {
@@ -51,7 +53,8 @@ const action = {
 			head: markdown_js + markdown_css,
 			content: mdConverter(s),
 			body: "",
-			source: "/" + p
+			source: "/" + p,
+			back: /^\extensions\/[a-zA-Z\d_\-]+\/data\//.test(p) ? p.replace(/^(\extensions\/[a-zA-Z\d_\-]+)\/.*$/, "/$1") : ".."
 		});
 		out.forEach(p => fs.writeFileSync(p, s))
 	}

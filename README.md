@@ -40,7 +40,7 @@ This is my personal homepage, hosted on GitHub Pages. It showcases various proje
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [https://lyuwenhan.github.io/LICENSE.txt](LICENSE) file for details.
 
 ## Access
 

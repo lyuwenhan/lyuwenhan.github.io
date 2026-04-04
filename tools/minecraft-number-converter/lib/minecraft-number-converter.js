@@ -15,13 +15,18 @@ function goodVal(val) {
 	return Math.max(0, Math.floor(Number(val) || 0))
 }
 
+function setValue(ele, value) {
+	ele.value = value ? value : "";
+}
+
 function update1() {
 	if (!thing1_1.value) {
 		result1_1.value = "";
 		result1_2.value = "";
 		return
 	}
-	const val = thing1_1.value = goodVal(thing1_1.value);
+	const val = goodVal(thing1_1.value);
+	setValue(thing1_1, val);
 	result1_1.value = Math.floor(val / 64);
 	result1_2.value = val % 64
 }
@@ -32,8 +37,10 @@ function update2() {
 		result2_1.value = "";
 		return
 	}
-	const val1 = thing2_1.value = goodVal(thing2_1.value);
-	const val2 = thing2_2.value = goodVal(thing2_2.value);
+	const val1 = goodVal(thing2_1.value);
+	const val2 = goodVal(thing2_2.value);
+	setValue(thing2_1, val1);
+	setValue(thing2_2, val2);
 	result2_1.value = val1 * 64 + val2
 }
 thing2_1.addEventListener("input", update2);
@@ -44,8 +51,10 @@ function update3() {
 		result3_1.value = "";
 		return
 	}
-	const val1 = thing3_1.value = goodVal(thing3_1.value);
-	const val2 = thing3_2.value = goodVal(thing3_2.value);
+	const val1 = goodVal(thing3_1.value);
+	const val2 = goodVal(thing3_2.value);
+	setValue(thing3_1, val1);
+	setValue(thing3_2, val2);
 	result3_1.value = val1 * 4 + val2
 }
 thing3_1.addEventListener("input", update3);
@@ -57,7 +66,8 @@ function update4() {
 		result4_2.value = "";
 		return
 	}
-	const val = thing4_1.value = goodVal(thing4_1.value);
+	const val = goodVal(thing4_1.value);
+	setValue(thing4_1, val);
 	result4_1.value = Math.floor(val / 4);
 	result4_2.value = val % 4
 }

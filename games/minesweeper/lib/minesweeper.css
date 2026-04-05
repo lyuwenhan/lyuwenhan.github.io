@@ -2,27 +2,27 @@ table {
 	width: max-content
 }
 #mineTd {
-	padding: 0;
 	display: flex;
 	justify-content: center;
+	padding: 0;
 	user-select: none
 }
 .mineEle {
-	width: 25px;
 	height: 25px;
-	padding: 0
+	padding: 0;
+	width: 25px
 }
 .mineEle > .mineEle2 {
-	width: 100%;
-	height: 100%;
+	align-items: center;
 	display: flex;
+	height: 100%;
 	justify-content: center;
-	align-items: center
+	width: 100%
 }
 .mineEle > .mineEle2 > svg {
 	display: block;
-	width: 80%;
-	height: 80%
+	height: 80%;
+	width: 80%
 }
 .mine-good {
 	background-color: #3ead3e90

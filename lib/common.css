@@ -1,21 +1,21 @@
 body, html {
-	width: 100%;
-	height: 100%
+	height: 100%;
+	width: 100%
 }
 body {
-	margin: 0;
-	font-size: 18px
+	font-size: 18px;
+	margin: 0
 }
 body, code {
 	font-family: Consolas, Courier, monospace
 }
 .main {
-	white-space: nowrap;
-	width: calc(100% - 60px);
+	margin: 0 30px;
+	min-height: calc(100% - 120px);
 	overflow-x: auto;
 	padding: 90px 0 30px;
-	margin: 0 30px;
-	min-height: calc(100% - 120px)
+	white-space: nowrap;
+	width: calc(100% - 60px)
 }
 .main > h2:first-child {
 	margin-top: 0
@@ -36,20 +36,20 @@ i {
 	color: grey
 }
 nav {
-	font-size: medium;
-	position: absolute;
-	top: 0;
-	left: 0;
-	z-index: 11;
-	gap: 5px;
-	width: calc(100% - 100px);
-	height: 60px;
+	align-items: center;
 	background-color: #2a83e9;
 	color: #fff;
 	display: flex;
-	align-items: center;
+	font-size: medium;
+	gap: 5px;
+	height: 60px;
 	justify-content: flex-start;
-	padding: 0 50px
+	left: 0;
+	padding: 0 50px;
+	position: absolute;
+	top: 0;
+	width: calc(100% - 100px);
+	z-index: 11
 }
 nav > ul {
 	height: 100%
@@ -59,8 +59,8 @@ nav > ul {
 }
 nav > ul, nav > ul > li > ul {
 	display: flex;
-	padding: 0;
-	margin: 0
+	margin: 0;
+	padding: 0
 }
 nav > ul > li {
 	height: 60px
@@ -70,11 +70,11 @@ nav > ul > li, nav > ul > li > ul > li {
 	list-style: none
 }
 nav > ul > li > a, nav > ul > li > ul > li > a {
-	display: flex;
+	align-items: center;
 	color: #fff;
-	padding: 0 10px;
+	display: flex;
 	height: 100%;
-	align-items: center
+	padding: 0 10px
 }
 nav > ul > li:hover > a {
 	background-color: #2060a9
@@ -83,20 +83,20 @@ nav > ul > li > ul > li:hover > a {
 	background-color: #164e8f
 }
 nav > ul > li > ul {
-	position: absolute;
 	background-color: #2673cb;
-	flex-direction: column
+	flex-direction: column;
+	position: absolute
 }
 nav > ul > li > ul > li > a {
-	padding: 10px;
-	height: 20px
+	height: 20px;
+	padding: 10px
 }
 .favico {
+	border-radius: 5px;
 	display: block;
-	margin: 10px;
-	width: 40px;
 	height: 40px;
-	border-radius: 5px
+	margin: 10px;
+	width: 40px
 }
 [hidden] {
 	display: none !important;
@@ -117,29 +117,29 @@ details > ol, details > ul {
 	margin-left: -20px
 }
 #to-top {
-	display: block;
-	padding: 10px;
+	background-color: #eee;
 	border: 1px solid #000;
 	border-radius: 5px;
-	background-color: #eee;
-	position: fixed;
 	bottom: 20px;
+	display: block;
+	padding: 10px;
+	position: fixed;
 	right: 20px
 }
 #top {
+	height: 0;
+	left: 0;
+	pointer-events: none;
 	position: absolute;
 	top: 0;
-	left: 0;
-	height: 0;
-	width: 100%;
-	pointer-events: none
+	width: 100%
 }
 code.inline-code {
 	background-color: #f9f2f4;
-	color: #c6254e;
-	padding: 1px 4px;
 	border-radius: 4px;
-	font-size: .85em
+	color: #c6254e;
+	font-size: .85em;
+	padding: 1px 4px
 }
 table {
 	border-collapse: collapse;
@@ -149,8 +149,8 @@ tbody, thead {
 	border: 2px solid #000
 }
 td, th {
-	padding: 4px 6px;
-	border: 1px solid #000
+	border: 1px solid #000;
+	padding: 4px 6px
 }
 td:has(>table.innTable), th:has(>table.innTable) {
 	border: none
@@ -179,14 +179,14 @@ summary > h1, summary > h2, summary > h3, summary > h4, summary > h5, summary > 
 .lisum summary {
 	list-style-position: outside
 }
-.lisum:not(:has(> details[open])) ~ li {
+.lisum:not(:has(>details[open])) ~ li {
 	display: none
 }
 .imgPreview {
-	width: 100px;
 	background-color: #f2f2f2;
 	border: 1px solid #000;
-	border-radius: 5px
+	border-radius: 5px;
+	width: 100px
 }
 .imgPreview:hover {
 	background-color: #d9d9d9

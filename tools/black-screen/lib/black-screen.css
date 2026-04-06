@@ -1,0 +1,11 @@
+.main {
+	background-color: #000;
+	height: 100%;
+	margin: 0;
+	overflow: hidden;
+	padding: 0;
+	width: 100%
+}
+body.hide-cursor, body.hide-cursor > * {
+	cursor: none !important
+}

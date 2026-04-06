@@ -1,12 +1,6 @@
 table {
 	width: max-content
 }
-#mineTd {
-	display: flex;
-	justify-content: center;
-	padding: 0;
-	user-select: none
-}
 .mineEle {
 	height: 25px;
 	padding: 0;

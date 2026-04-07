@@ -1,5 +1,6 @@
+const mainEle = document.querySelector(".main");
 const screenEle = document.getElementById("screen");
-document.addEventListener("click", e => {
+mainEle.addEventListener("click", e => {
 	e.preventDefault();
 	e.stopPropagation();
 	screenEle.requestFullscreen()

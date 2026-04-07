@@ -68,7 +68,6 @@ function removeGuess() {
 }
 
 function addGuess(i, j) {
-	console.log(i - 1, j - 1);
 	let boxValue = grid[i - 1][j - 1];
 	if (boxValue.type === "guess") {
 		return
@@ -95,7 +94,6 @@ function addGuess(i, j) {
 		}
 	}
 	Array.from(positions).map(s => s.split(",").map(Number)).forEach(([x, y]) => {
-		console.log(x, y);
 		if (grid[x][y].type === "guess") {
 			grid[x][y].value[boxValue.value - 1] = true
 		}

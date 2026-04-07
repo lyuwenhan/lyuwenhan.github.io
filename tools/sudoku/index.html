@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Sudoku solver</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="icon" href="/lib/favicon.png" type="image/x-icon">
+	<link rel="stylesheet" href="lib/sudoku.css">
+	<link rel="stylesheet" href="/lib/common.css">
+	<link rel="stylesheet" href="/lib/mobile.css" media="only screen and (max-width: 768px)">
+</head>
+
+<body>
+	<div id="top"></div>
+	<div id="nav">
+		<nav>
+			<ul>
+				<li>
+					<a href="/">Home</a>
+				</li>
+			</ul>
+		</nav>
+	</div>
+	<div class="main">
+		<a href=".." class="bt">Back</a>
+		<h2>Sudoku</h2>
+		<table id="table-sudoku">
+			<tr>
+				<td class="box row1 col1 block1" id="box1-1"></td>
+				<td class="box row1 col2 block1" id="box1-2"></td>
+				<td class="box row1 col3 block1" id="box1-3"></td>
+				<td class="box row1 col4 block2" id="box1-4"></td>
+				<td class="box row1 col5 block2" id="box1-5"></td>
+				<td class="box row1 col6 block2" id="box1-6"></td>
+				<td class="box row1 col7 block3" id="box1-7"></td>
+				<td class="box row1 col8 block3" id="box1-8"></td>
+				<td class="box row1 col9 block3" id="box1-9"></td>
+			</tr>
+			<tr>
+				<td class="box row2 col1 block1" id="box2-1"></td>
+				<td class="box row2 col2 block1" id="box2-2"></td>
+				<td class="box row2 col3 block1" id="box2-3"></td>
+				<td class="box row2 col4 block2" id="box2-4"></td>
+				<td class="box row2 col5 block2" id="box2-5"></td>
+				<td class="box row2 col6 block2" id="box2-6"></td>
+				<td class="box row2 col7 block3" id="box2-7"></td>
+				<td class="box row2 col8 block3" id="box2-8"></td>
+				<td class="box row2 col9 block3" id="box2-9"></td>
+			</tr>
+			<tr>
+				<td class="box row3 col1 block1" id="box3-1"></td>
+				<td class="box row3 col2 block1" id="box3-2"></td>
+				<td class="box row3 col3 block1" id="box3-3"></td>
+				<td class="box row3 col4 block2" id="box3-4"></td>
+				<td class="box row3 col5 block2" id="box3-5"></td>
+				<td class="box row3 col6 block2" id="box3-6"></td>
+				<td class="box row3 col7 block3" id="box3-7"></td>
+				<td class="box row3 col8 block3" id="box3-8"></td>
+				<td class="box row3 col9 block3" id="box3-9"></td>
+			</tr>
+			<tr>
+				<td class="box row4 col1 block4" id="box4-1"></td>
+				<td class="box row4 col2 block4" id="box4-2"></td>
+				<td class="box row4 col3 block4" id="box4-3"></td>
+				<td class="box row4 col4 block5" id="box4-4"></td>
+				<td class="box row4 col5 block5" id="box4-5"></td>
+				<td class="box row4 col6 block5" id="box4-6"></td>
+				<td class="box row4 col7 block6" id="box4-7"></td>
+				<td class="box row4 col8 block6" id="box4-8"></td>
+				<td class="box row4 col9 block6" id="box4-9"></td>
+			</tr>
+			<tr>
+				<td class="box row5 col1 block4" id="box5-1"></td>
+				<td class="box row5 col2 block4" id="box5-2"></td>
+				<td class="box row5 col3 block4" id="box5-3"></td>
+				<td class="box row5 col4 block5" id="box5-4"></td>
+				<td class="box row5 col5 block5" id="box5-5"></td>
+				<td class="box row5 col6 block5" id="box5-6"></td>
+				<td class="box row5 col7 block6" id="box5-7"></td>
+				<td class="box row5 col8 block6" id="box5-8"></td>
+				<td class="box row5 col9 block6" id="box5-9"></td>
+			</tr>
+			<tr>
+				<td class="box row6 col1 block4" id="box6-1"></td>
+				<td class="box row6 col2 block4" id="box6-2"></td>
+				<td class="box row6 col3 block4" id="box6-3"></td>
+				<td class="box row6 col4 block5" id="box6-4"></td>
+				<td class="box row6 col5 block5" id="box6-5"></td>
+				<td class="box row6 col6 block5" id="box6-6"></td>
+				<td class="box row6 col7 block6" id="box6-7"></td>
+				<td class="box row6 col8 block6" id="box6-8"></td>
+				<td class="box row6 col9 block6" id="box6-9"></td>
+			</tr>
+			<tr>
+				<td class="box row7 col1 block7" id="box7-1"></td>
+				<td class="box row7 col2 block7" id="box7-2"></td>
+				<td class="box row7 col3 block7" id="box7-3"></td>
+				<td class="box row7 col4 block8" id="box7-4"></td>
+				<td class="box row7 col5 block8" id="box7-5"></td>
+				<td class="box row7 col6 block8" id="box7-6"></td>
+				<td class="box row7 col7 block9" id="box7-7"></td>
+				<td class="box row7 col8 block9" id="box7-8"></td>
+				<td class="box row7 col9 block9" id="box7-9"></td>
+			</tr>
+			<tr>
+				<td class="box row8 col1 block7" id="box8-1"></td>
+				<td class="box row8 col2 block7" id="box8-2"></td>
+				<td class="box row8 col3 block7" id="box8-3"></td>
+				<td class="box row8 col4 block8" id="box8-4"></td>
+				<td class="box row8 col5 block8" id="box8-5"></td>
+				<td class="box row8 col6 block8" id="box8-6"></td>
+				<td class="box row8 col7 block9" id="box8-7"></td>
+				<td class="box row8 col8 block9" id="box8-8"></td>
+				<td class="box row8 col9 block9" id="box8-9"></td>
+			</tr>
+			<tr>
+				<td class="box row9 col1 block7" id="box9-1"></td>
+				<td class="box row9 col2 block7" id="box9-2"></td>
+				<td class="box row9 col3 block7" id="box9-3"></td>
+				<td class="box row9 col4 block8" id="box9-4"></td>
+				<td class="box row9 col5 block8" id="box9-5"></td>
+				<td class="box row9 col6 block8" id="box9-6"></td>
+				<td class="box row9 col7 block9" id="box9-7"></td>
+				<td class="box row9 col8 block9" id="box9-8"></td>
+				<td class="box row9 col9 block9" id="box9-9"></td>
+			</tr>
+		</table>
+	</div>
+	<a id="to-top" href="#top" class="bt" hidden>Top</a>
+	<script src="/lib/main.js"></script>
+	<script src="lib/sudoku.js"></script>
+</body>
+
+</html>

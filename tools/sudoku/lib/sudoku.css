@@ -1,0 +1,63 @@
+td.box {
+	height: 40px;
+	line-height: 1em;
+	position: relative;
+	user-select: none;
+	-moz-user-select: none;
+	width: 40px
+}
+td.box-focus {
+	background-color: #ff0
+}
+td.row1, td.row4, td.row7 {
+	border-top: 3px solid #000
+}
+td.row3, td.row6, td.row9 {
+	border-bottom: 3px solid #000
+}
+td.col1, td.col4, td.col7 {
+	border-left: 3px solid #000
+}
+td.col3, td.col6, td.col9 {
+	border-right: 3px solid #000
+}
+#table-sudoku:has(td.box-focus.block1) td.block1:not(.box-focus), #table-sudoku:has(td.box-focus.block2) td.block2:not(.box-focus), #table-sudoku:has(td.box-focus.block3) td.block3:not(.box-focus), #table-sudoku:has(td.box-focus.block4) td.block4:not(.box-focus), #table-sudoku:has(td.box-focus.block5) td.block5:not(.box-focus), #table-sudoku:has(td.box-focus.block6) td.block6:not(.box-focus), #table-sudoku:has(td.box-focus.block7) td.block7:not(.box-focus), #table-sudoku:has(td.box-focus.block8) td.block8:not(.box-focus), #table-sudoku:has(td.box-focus.block9) td.block9:not(.box-focus), #table-sudoku:has(td.box-focus.col1) td.col1:not(.box-focus), #table-sudoku:has(td.box-focus.col2) td.col2:not(.box-focus), #table-sudoku:has(td.box-focus.col3) td.col3:not(.box-focus), #table-sudoku:has(td.box-focus.col4) td.col4:not(.box-focus), #table-sudoku:has(td.box-focus.col5) td.col5:not(.box-focus), #table-sudoku:has(td.box-focus.col6) td.col6:not(.box-focus), #table-sudoku:has(td.box-focus.col7) td.col7:not(.box-focus), #table-sudoku:has(td.box-focus.col8) td.col8:not(.box-focus), #table-sudoku:has(td.box-focus.col9) td.col9:not(.box-focus), #table-sudoku:has(td.box-focus.row1) td.row1:not(.box-focus), #table-sudoku:has(td.box-focus.row2) td.row2:not(.box-focus), #table-sudoku:has(td.box-focus.row3) td.row3:not(.box-focus), #table-sudoku:has(td.box-focus.row4) td.row4:not(.box-focus), #table-sudoku:has(td.box-focus.row5) td.row5:not(.box-focus), #table-sudoku:has(td.box-focus.row6) td.row6:not(.box-focus), #table-sudoku:has(td.box-focus.row7) td.row7:not(.box-focus), #table-sudoku:has(td.box-focus.row8) td.row8:not(.box-focus), #table-sudoku:has(td.box-focus.row9) td.row9:not(.box-focus) {
+	background-color: #ff9
+}
+.box-guess, .box-value {
+	display: flex;
+	font-size: 30px;
+	height: calc(100% - 12px);
+	left: 6px;
+	position: absolute;
+	top: 6px;
+	width: calc(100% - 12px)
+}
+.box-value {
+	align-items: center;
+	justify-content: center
+}
+.box-guess {
+	font-size: 13px
+}
+.box-guess-1, .box-guess-4, .box-guess-7 {
+	justify-content: left
+}
+.box-guess-2, .box-guess-5, .box-guess-8 {
+	justify-content: center
+}
+.box-guess-3, .box-guess-6, .box-guess-9 {
+	justify-content: right
+}
+.box-guess-1, .box-guess-2, .box-guess-3 {
+	align-items: flex-start
+}
+.box-guess-4, .box-guess-5, .box-guess-6 {
+	align-items: center
+}
+.box-guess-7, .box-guess-8, .box-guess-9 {
+	align-items: flex-end
+}
+#table-sudoku:has(td.box-focus>span.box-value-1) td.box > span.box-guess-1, #table-sudoku:has(td.box-focus>span.box-value-1) td.box > span.box-value-1, #table-sudoku:has(td.box-focus>span.box-value-2) td.box > span.box-guess-2, #table-sudoku:has(td.box-focus>span.box-value-2) td.box > span.box-value-2, #table-sudoku:has(td.box-focus>span.box-value-3) td.box > span.box-guess-3, #table-sudoku:has(td.box-focus>span.box-value-3) td.box > span.box-value-3, #table-sudoku:has(td.box-focus>span.box-value-4) td.box > span.box-guess-4, #table-sudoku:has(td.box-focus>span.box-value-4) td.box > span.box-value-4, #table-sudoku:has(td.box-focus>span.box-value-5) td.box > span.box-guess-5, #table-sudoku:has(td.box-focus>span.box-value-5) td.box > span.box-value-5, #table-sudoku:has(td.box-focus>span.box-value-6) td.box > span.box-guess-6, #table-sudoku:has(td.box-focus>span.box-value-6) td.box > span.box-value-6, #table-sudoku:has(td.box-focus>span.box-value-7) td.box > span.box-guess-7, #table-sudoku:has(td.box-focus>span.box-value-7) td.box > span.box-value-7, #table-sudoku:has(td.box-focus>span.box-value-8) td.box > span.box-guess-8, #table-sudoku:has(td.box-focus>span.box-value-8) td.box > span.box-value-8, #table-sudoku:has(td.box-focus>span.box-value-9) td.box > span.box-guess-9, #table-sudoku:has(td.box-focus>span.box-value-9) td.box > span.box-value-9 {
+	color: red
+}

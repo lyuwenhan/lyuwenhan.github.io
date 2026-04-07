@@ -14,8 +14,9 @@ This is my personal homepage, hosted on GitHub Pages. It showcases various proje
 - [Click Speed Test](https://lyuwenhan.github.io/tools/click-speed-test/) - Test your clicking speed.
 - [Spacebar Speed Test](https://lyuwenhan.github.io/tools/spacebar-speed-test/) - Test your spacebar pressing speed.
 - [Minecraft Number Converter](https://lyuwenhan.github.io/tools/minecraft-number-converter/) - Converts item quantities between different forms and units.
-- [Black Screen](https://lyuwenhan.github.io/tools/black-screen/) - A full-screen black display tool.
 - [Sudoku Solver](https://lyuwenhan.github.io/tools/sudoku/) - A tool that helps you solve Sudoku puzzles.
+- [Black Screen](https://lyuwenhan.github.io/tools/black-screen/) - A full-screen black display tool.
+- [White Screen](https://lyuwenhan.github.io/tools/black-screen/) - A full-screen white display tool.
 
 ### Extensions
 - [VS Code Extensions](https://lyuwenhan.github.io/extensions/vscode/) - Collection of VS Code extensions I've created.
@@ -35,8 +36,9 @@ This is my personal homepage, hosted on GitHub Pages. It showcases various proje
 - [Click Speed Test](https://github.com/lyuwenhan/lyuwenhan.github.io/tree/main/tools/click-speed-test/)
 - [Spacebar Speed Test](https://github.com/lyuwenhan/lyuwenhan.github.io/tree/main/tools/spacebar-speed-test/)
 - [Minecraft Number Converter](https://github.com/lyuwenhan/lyuwenhan.github.io/tree/main/tools/minecraft-number-converter/)
-- [Black Screen](https://github.com/lyuwenhan/lyuwenhan.github.io/tree/main/tools/black-screen/)
 - [Sudoku Solver](https://github.com/lyuwenhan/lyuwenhan.github.io/tree/main/tools/sudoku/)
+- [Black Screen](https://github.com/lyuwenhan/lyuwenhan.github.io/tree/main/tools/black-screen/)
+- [White Screen](https://github.com/lyuwenhan/lyuwenhan.github.io/tree/main/tools/white-screen/)
 
 ### Extensions
 - [VS Code Extensions](https://github.com/lyuwenhan/vscode-extensions/tree/main/)

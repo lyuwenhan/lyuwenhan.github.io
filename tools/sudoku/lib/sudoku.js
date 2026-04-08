@@ -14,7 +14,7 @@ const prev = [];
 let boxes = grid.map((row, i) => row.map((_, j) => document.getElementById(`box${i+1}-${j+1}`)));
 let focus = null;
 
-function removeGuess() {
+function removeGuess1() {
 	let hasChange;
 	do {
 		hasChange = false;
@@ -65,6 +65,81 @@ function removeGuess() {
 			}
 		}))
 	} while (hasChange)
+}
+
+function removeGuess2() {
+	let hasChange;
+	do {
+		hasChange = false;
+		const rows = Array.from({
+			length: 9
+		}, () => Array.from({
+			length: 9
+		}, () => ({
+			count: 0,
+			position: null
+		})));
+		const cols = Array.from({
+			length: 9
+		}, () => Array.from({
+			length: 9
+		}, () => ({
+			count: 0,
+			position: null
+		})));
+		const blocks = Array.from({
+			length: 9
+		}, () => Array.from({
+			length: 9
+		}, () => ({
+			count: 0,
+			position: null
+		})));
+		grid.forEach((row, i) => row.forEach((boxValue, j) => {
+			if (boxValue.type === "guess") {
+				const blockNumber = Math.floor(i / 3) * 3 + Math.floor(j / 3);
+				boxValue.value.forEach((isTrue, value) => {
+					if (!isTrue) {
+						return
+					}
+					rows[i][value].count++;
+					rows[i][value].position = [i, j];
+					cols[j][value].count++;
+					cols[j][value].position = [i, j];
+					blocks[blockNumber][value].count++;
+					blocks[blockNumber][value].position = [i, j]
+				})
+			}
+		}));
+		rows.forEach(row => row.forEach((rowValue, value) => {
+			if (rowValue.count === 1) {
+				grid[rowValue.position[0]][rowValue.position[1]].type = "number";
+				grid[rowValue.position[0]][rowValue.position[1]].value = value + 1;
+				hasChange = true
+			}
+		}));
+		cols.forEach(col => col.forEach((colValue, value) => {
+			if (colValue.count === 1) {
+				grid[colValue.position[0]][colValue.position[1]].type = "number";
+				grid[colValue.position[0]][colValue.position[1]].value = value + 1;
+				hasChange = true
+			}
+		}));
+		blocks.forEach(block => block.forEach((blockValue, value) => {
+			if (blockValue.count === 1) {
+				grid[blockValue.position[0]][blockValue.position[1]].type = "number";
+				grid[blockValue.position[0]][blockValue.position[1]].value = value + 1;
+				hasChange = true
+			}
+		}));
+		if (hasChange) {
+			removeGuess1()
+		}
+	} while (hasChange)
+}
+
+function removeGuess() {
+	removeGuess1()
 }
 
 function addGuess(i, j) {

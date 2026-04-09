@@ -80,7 +80,7 @@ function removeGuess1(needUpdate) {
 	}
 }
 
-function removeGuess() {
+function removeGuess2() {
 	removeGuess1();
 	const needUpdate = [];
 	do {
@@ -150,6 +150,10 @@ function removeGuess() {
 			removeGuess1(needUpdate)
 		}
 	} while (needUpdate.length > 0)
+}
+
+function removeGuess() {
+	removeGuess2()
 }
 
 function addGuess(i, j) {

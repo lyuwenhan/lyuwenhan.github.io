@@ -1,76 +1,90 @@
+const buttonReset = document.getElementById("button-reset");
+const buttonSolve = document.getElementById("button-solve");
+const buttonResetNotes = document.getElementById("button-reset-notes");
+
 function between(a) {
 	return 1 <= a && a <= 9
 }
-let grid = Array.from({
-	length: 9
-}, () => Array.from({
-	length: 9
-}, () => ({
-	type: "guess",
-	value: Array(9).fill(true)
-})));
+let grid;
+
+function resetGrid() {
+	grid = Array.from({
+		length: 9
+	}, () => Array.from({
+		length: 9
+	}, () => ({
+		type: "guess",
+		value: Array(9).fill(true)
+	})))
+}
+resetGrid();
 let prevI = -1;
 const prev = [];
 let boxes = grid.map((row, i) => row.map((_, j) => document.getElementById(`box${i+1}-${j+1}`)));
 let focus = null;
 
-function removeGuess1() {
-	let hasChange;
-	do {
-		hasChange = false;
-		grid.forEach((row, i) => row.forEach((boxValue, j) => {
-			if (boxValue.type === "guess") {
-				const filt = boxValue.value.map((value, i) => ({
-					value,
-					i
-				})).filter(({
-					value
-				}) => value).map(({
-					i
-				}) => i + 1);
-				if (filt.length === 1) {
-					boxValue.type = "number";
-					boxValue.value = filt[0];
-					hasChange = true
+function removeGuess1(needUpdate) {
+	needUpdate = needUpdate ? new Set(needUpdate) : new Set(Array.from({
+		length: 9
+	}, (_, i) => Array.from({
+		length: 9
+	}, (_, j) => `${i},${j}`)).flat());
+	while (needUpdate.size > 0) {
+		const update = needUpdate.values().next().value;
+		needUpdate.delete(update);
+		const [i, j] = update.split(",").map(Number);
+		const boxValue = grid[i][j];
+		if (boxValue.type === "guess") {
+			const filt = boxValue.value.map((value, i) => ({
+				value,
+				i
+			})).filter(({
+				value
+			}) => value).map(({
+				i
+			}) => i + 1);
+			if (filt.length === 1) {
+				boxValue.type = "number";
+				boxValue.value = filt[0]
+			}
+		}
+		if (boxValue.type !== "guess") {
+			const positions = new Set;
+			for (let y = 0; y < 9; y++) {
+				if (y !== j) {
+					positions.add(`${i},${y}`)
 				}
 			}
-			if (boxValue.type !== "guess") {
-				const positions = new Set;
-				for (let y = 0; y < 9; y++) {
-					if (y !== j) {
-						positions.add(`${i},${y}`)
-					}
+			for (let x = 0; x < 9; x++) {
+				if (x !== i) {
+					positions.add(`${x},${j}`)
 				}
-				for (let x = 0; x < 9; x++) {
-					if (x !== i) {
-						positions.add(`${x},${j}`)
-					}
-				}
-				const blockRow = Math.floor(i / 3) * 3;
-				const blockCol = Math.floor(j / 3) * 3;
-				for (let x = blockRow; x < blockRow + 3; x++) {
-					for (let y = blockCol; y < blockCol + 3; y++) {
-						if (x === i && y === j) {
-							continue
-						}
-						positions.add(`${x},${y}`)
-					}
-				}
-				Array.from(positions).map(s => s.split(",").map(Number)).forEach(([x, y]) => {
-					if (grid[x][y].type === "guess" && grid[x][y].value[boxValue.value - 1]) {
-						hasChange = true;
-						grid[x][y].value[boxValue.value - 1] = false
-					}
-				})
 			}
-		}))
-	} while (hasChange)
+			const blockRow = Math.floor(i / 3) * 3;
+			const blockCol = Math.floor(j / 3) * 3;
+			for (let x = blockRow; x < blockRow + 3; x++) {
+				for (let y = blockCol; y < blockCol + 3; y++) {
+					if (x === i && y === j) {
+						continue
+					}
+					positions.add(`${x},${y}`)
+				}
+			}
+			Array.from(positions).map(s => s.split(",").map(Number)).forEach(([x, y]) => {
+				if (grid[x][y].type === "guess" && grid[x][y].value[boxValue.value - 1]) {
+					grid[x][y].value[boxValue.value - 1] = false;
+					needUpdate.add(`${x},${y}`)
+				}
+			})
+		}
+	}
 }
 
-function removeGuess2() {
-	let hasChange;
+function removeGuess() {
+	removeGuess1();
+	const needUpdate = [];
 	do {
-		hasChange = false;
+		needUpdate.length = 0;
 		const rows = Array.from({
 			length: 9
 		}, () => Array.from({
@@ -115,31 +129,27 @@ function removeGuess2() {
 			if (rowValue.count === 1) {
 				grid[rowValue.position[0]][rowValue.position[1]].type = "number";
 				grid[rowValue.position[0]][rowValue.position[1]].value = value + 1;
-				hasChange = true
+				needUpdate.push(`${rowValue.position[0]},${rowValue.position[1]}`)
 			}
 		}));
 		cols.forEach(col => col.forEach((colValue, value) => {
 			if (colValue.count === 1) {
 				grid[colValue.position[0]][colValue.position[1]].type = "number";
 				grid[colValue.position[0]][colValue.position[1]].value = value + 1;
-				hasChange = true
+				needUpdate.push(`${colValue.position[0]},${colValue.position[1]}`)
 			}
 		}));
 		blocks.forEach(block => block.forEach((blockValue, value) => {
 			if (blockValue.count === 1) {
 				grid[blockValue.position[0]][blockValue.position[1]].type = "number";
 				grid[blockValue.position[0]][blockValue.position[1]].value = value + 1;
-				hasChange = true
+				needUpdate.push(`${blockValue.position[0]},${blockValue.position[1]}`)
 			}
 		}));
-		if (hasChange) {
-			removeGuess1()
+		if (needUpdate.length > 0) {
+			removeGuess1(needUpdate)
 		}
-	} while (hasChange)
-}
-
-function removeGuess() {
-	removeGuess1()
+	} while (needUpdate.length > 0)
 }
 
 function addGuess(i, j) {
@@ -177,6 +187,15 @@ function addGuess(i, j) {
 		type: "guess",
 		value: Array(9).fill(true)
 	}
+}
+
+function resetNotes() {
+	grid.forEach((row, i) => row.forEach((boxValue, j) => {
+		if (boxValue.type === "guess") {
+			boxValue.value = Array(9).fill(true)
+		}
+	}));
+	removeGuess()
 }
 
 function display() {
@@ -222,6 +241,19 @@ function removeFocus() {
 function setFocus() {
 	boxes[focus.x - 1]?.[focus.y - 1]?.classList?.add("box-focus")
 }
+buttonReset.addEventListener("click", () => {
+	resetGrid();
+	setHistory();
+	display()
+});
+buttonSolve.addEventListener("click", () => {
+	removeGuess()
+});
+buttonResetNotes.addEventListener("click", () => {
+	resetNotes();
+	setHistory();
+	display()
+});
 document.addEventListener("click", e => {
 	removeFocus();
 	focus = null;

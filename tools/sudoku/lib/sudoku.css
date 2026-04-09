@@ -61,3 +61,7 @@ td.col3, td.col6, td.col9 {
 #table-sudoku:has(td.box-focus>span.box-value-1) td.box > span.box-guess-1, #table-sudoku:has(td.box-focus>span.box-value-1) td.box > span.box-value-1, #table-sudoku:has(td.box-focus>span.box-value-2) td.box > span.box-guess-2, #table-sudoku:has(td.box-focus>span.box-value-2) td.box > span.box-value-2, #table-sudoku:has(td.box-focus>span.box-value-3) td.box > span.box-guess-3, #table-sudoku:has(td.box-focus>span.box-value-3) td.box > span.box-value-3, #table-sudoku:has(td.box-focus>span.box-value-4) td.box > span.box-guess-4, #table-sudoku:has(td.box-focus>span.box-value-4) td.box > span.box-value-4, #table-sudoku:has(td.box-focus>span.box-value-5) td.box > span.box-guess-5, #table-sudoku:has(td.box-focus>span.box-value-5) td.box > span.box-value-5, #table-sudoku:has(td.box-focus>span.box-value-6) td.box > span.box-guess-6, #table-sudoku:has(td.box-focus>span.box-value-6) td.box > span.box-value-6, #table-sudoku:has(td.box-focus>span.box-value-7) td.box > span.box-guess-7, #table-sudoku:has(td.box-focus>span.box-value-7) td.box > span.box-value-7, #table-sudoku:has(td.box-focus>span.box-value-8) td.box > span.box-guess-8, #table-sudoku:has(td.box-focus>span.box-value-8) td.box > span.box-value-8, #table-sudoku:has(td.box-focus>span.box-value-9) td.box > span.box-guess-9, #table-sudoku:has(td.box-focus>span.box-value-9) td.box > span.box-value-9 {
 	color: red
 }
+.buttons {
+	display: flex;
+	gap: 8px;
+}

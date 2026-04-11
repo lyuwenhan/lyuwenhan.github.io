@@ -193,6 +193,85 @@ function addGuess(i, j) {
 	}
 }
 
+function solve() {
+	const rows = Array.from({
+		length: 9
+	}, () => Array(9).fill(false));
+	const cols = Array.from({
+		length: 9
+	}, () => Array(9).fill(false));
+	const blocks = Array.from({
+		length: 9
+	}, () => Array(9).fill(false));
+	const answer = [];
+
+	function dfs(x, y) {
+		if (x === 9) {
+			answer.push(grid.map(row => row.map(boxValue => boxValue.value)));
+			return
+		}
+		const nextY = (y + 1) % 9;
+		const nextX = nextY === 0 ? x + 1 : x;
+		if (grid[x][y].type === "number") {
+			dfs(nextX, nextY);
+			return
+		}
+		for (let i = 0; i < grid[x][y].value.length; i++) {
+			if (answer.length >= 2) {
+				return
+			}
+			if (!grid[x][y].value[i]) {
+				continue
+			}
+			const blockNumber = Math.floor(x / 3) * 3 + Math.floor(y / 3);
+			if (rows[x][i] || cols[y][i] || blocks[blockNumber][i]) {
+				continue
+			}
+			rows[x][i] = true;
+			cols[y][i] = true;
+			blocks[blockNumber][i] = true;
+			const boxValue = grid[x][y];
+			grid[x][y] = {
+				type: "number",
+				value: i + 1
+			};
+			dfs(nextX, nextY);
+			rows[x][i] = false;
+			cols[y][i] = false;
+			blocks[blockNumber][i] = false;
+			grid[x][y] = boxValue
+		}
+	}
+	for (let i = 0; i < grid.length; i++) {
+		for (let j = 0; j < grid[i].length; j++) {
+			const boxValue = grid[i][j];
+			if (boxValue.type === "number") {
+				const blockNumber = Math.floor(i / 3) * 3 + Math.floor(j / 3);
+				if (rows[i][boxValue.value - 1] || cols[j][boxValue.value - 1] || blocks[blockNumber][boxValue.value - 1]) {
+					alert("Preset numbers conflict.");
+					return
+				}
+				rows[i][boxValue.value - 1] = true;
+				cols[j][boxValue.value - 1] = true;
+				blocks[blockNumber][boxValue.value - 1] = true
+			}
+		}
+	}
+	dfs(0, 0);
+	if (answer.length === 0) {
+		alert("No solution.")
+	} else if (answer.length === 1) {
+		grid = answer[0].map(row => row.map(value => ({
+			type: "number",
+			value
+		})));
+		setHistory();
+		display()
+	} else {
+		alert("Multiple solutions.")
+	}
+}
+
 function resetNotes() {
 	grid.forEach((row, i) => row.forEach((boxValue, j) => {
 		if (boxValue.type === "guess") {
@@ -251,7 +330,7 @@ buttonReset.addEventListener("click", () => {
 	display()
 });
 buttonSolve.addEventListener("click", () => {
-	removeGuess()
+	solve()
 });
 buttonResetNotes.addEventListener("click", () => {
 	resetNotes();

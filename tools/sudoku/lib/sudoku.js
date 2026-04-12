@@ -1,6 +1,9 @@
 const buttonReset = document.getElementById("button-reset");
 const buttonSolve = document.getElementById("button-solve");
 const buttonResetNotes = document.getElementById("button-reset-notes");
+const multipleAnswerCheckEle = document.getElementById("multiple-answer-check");
+let multipleAnswerCheck = window.localStorage.getItem("sudoku-solver-multiple-answer-check") !== "false";
+multipleAnswerCheckEle.checked = multipleAnswerCheck;
 
 function between(a) {
 	return 1 <= a && a <= 9
@@ -194,6 +197,7 @@ function addGuess(i, j) {
 }
 
 function solve() {
+	const triggerNumber = multipleAnswerCheck ? 2 : 1;
 	const rows = Array.from({
 		length: 9
 	}, () => Array(9).fill(false));
@@ -217,7 +221,7 @@ function solve() {
 			return
 		}
 		for (let i = 0; i < grid[x][y].value.length; i++) {
-			if (answer.length >= 2) {
+			if (answer.length >= triggerNumber) {
 				return
 			}
 			if (!grid[x][y].value[i]) {
@@ -324,6 +328,10 @@ function removeFocus() {
 function setFocus() {
 	boxes[focus.x - 1]?.[focus.y - 1]?.classList?.add("box-focus")
 }
+multipleAnswerCheckEle.addEventListener("change", () => {
+	multipleAnswerCheck = multipleAnswerCheckEle.checked;
+	window.localStorage.setItem("sudoku-solver-multiple-answer-check", multipleAnswerCheck)
+});
 buttonReset.addEventListener("click", () => {
 	resetGrid();
 	setHistory();

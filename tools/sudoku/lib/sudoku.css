@@ -63,5 +63,5 @@ td.col3, td.col6, td.col9 {
 }
 .buttons {
 	display: flex;
-	gap: 8px;
+	gap: 8px
 }

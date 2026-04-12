@@ -2,10 +2,13 @@ const buttonReset = document.getElementById("button-reset");
 const buttonSolve = document.getElementById("button-solve");
 const buttonResetNotes = document.getElementById("button-reset-notes");
 const autoSolveNakedSingleEle = document.getElementById("auto-solve-naked-single");
+const autoSolveNakedSubsetEle = document.getElementById("auto-solve-naked-subset");
 const autoSolveHiddenSingleEle = document.getElementById("auto-solve-hidden-single");
 const multipleAnswerCheckEle = document.getElementById("multiple-answer-check");
 let autoSolveNakedSingle = window.localStorage.getItem("sudoku-solver-auto-solve-naked-single") === "true";
 autoSolveNakedSingleEle.checked = autoSolveNakedSingle;
+let autoSolveNakedSubset = window.localStorage.getItem("sudoku-solver-auto-solve-naked-subset") === "true";
+autoSolveNakedSubsetEle.checked = autoSolveNakedSubset;
 let autoSolveHiddenSingle = window.localStorage.getItem("sudoku-solver-auto-solve-hidden-single") === "true";
 autoSolveHiddenSingleEle.checked = autoSolveHiddenSingle;
 let multipleAnswerCheck = window.localStorage.getItem("sudoku-solver-multiple-answer-check") !== "false";
@@ -27,7 +30,7 @@ function resetGrid() {
 	})))
 }
 resetGrid();
-let prevI = -1;
+let prevI = 0;
 const prev = [];
 let boxes = grid.map((row, i) => row.map((_, j) => document.getElementById(`box${i+1}-${j+1}`)));
 let focus = null;
@@ -79,29 +82,155 @@ function removeGuess(needUpdate) {
 	return updated
 }
 
-function solveNakedSingle() {
+function boolToNumber(arr) {
+	return arr.map((value, i) => ({
+		value,
+		i
+	})).filter(({
+		value
+	}) => value).map(({
+		i
+	}) => i + 1)
+}
+
+function solveNakedSingleAndSubset() {
+	const solveSingel = autoSolveNakedSingle;
+	const solveSubset = autoSolveNakedSubset;
 	let updated = false;
-	grid.forEach((row, i) => row.forEach((boxValue, j) => {
-		if (boxValue.type !== "guess") {
-			return
-		}
-		const filt = boxValue.value.map((value, i) => ({
-			value,
-			i
-		})).filter(({
-			value
-		}) => value).map(({
-			i
-		}) => i + 1);
-		if (filt.length === 1) {
-			updated = true;
+	const needUpdate = [];
+	do {
+		needUpdate.length = 0;
+		const nakedSingle = [];
+		const rows = Array.from({
+			length: 9
+		}, () => ({}));
+		const cols = Array.from({
+			length: 9
+		}, () => ({}));
+		const blocks = Array.from({
+			length: 9
+		}, () => ({}));
+		const toNumbered = grid.map(row => row.map(box => box.type === "guess" ? boolToNumber(box.value) : []));
+		const toNumberedStr = toNumbered.map(row => row.map(box => box.join(" ")));
+		grid.forEach((row, i) => row.forEach((boxValue, j) => {
+			if (boxValue.type !== "guess") {
+				return
+			}
+			const filt = toNumbered[i][j];
+			if (solveSingel && filt.length === 1) {
+				nakedSingle.push([i, j, filt[0]]);
+				updated = true;
+				needUpdate.push(`${i},${j}`)
+			} else if (solveSubset && filt.length <= 4) {
+				const blockNumber = Math.floor(i / 3) * 3 + Math.floor(j / 3);
+				const numbers = filt.join(" ");
+				if (!rows[i][numbers]) {
+					rows[i][numbers] = []
+				}
+				rows[i][numbers].push([i, j]);
+				if (!cols[j][numbers]) {
+					cols[j][numbers] = []
+				}
+				cols[j][numbers].push([i, j]);
+				if (!blocks[blockNumber][numbers]) {
+					blocks[blockNumber][numbers] = []
+				}
+				blocks[blockNumber][numbers].push([i, j])
+			}
+		}));
+		nakedSingle.forEach(([i, j, value]) => {
+			const boxValue = grid[i][j];
 			boxValue.type = "number";
-			boxValue.value = filt[0]
+			boxValue.value = value
+		});
+		rows.forEach((row, i) => {
+			for (let guessStr in row) {
+				let guess = guessStr.split(" ");
+				const pos = row[guessStr];
+				if (pos.length === guess.length) {
+					grid[i].forEach((box, j) => {
+						if (box.type === "guess") {
+							if (toNumberedStr[i][j] !== guessStr) {
+								console.log("row rem", i, j, guessStr);
+								let upd = false;
+								guess.forEach(value => {
+									if (box.value[value - 1]) {
+										upd = true;
+										box.value[value - 1] = false
+									}
+								});
+								if (upd) {
+									updated = true;
+									needUpdate.push(`${i},${j}`)
+								}
+							}
+						}
+					})
+				}
+			}
+		});
+		cols.forEach((col, j) => {
+			for (let guessStr in col) {
+				let guess = guessStr.split(" ");
+				const pos = col[guessStr];
+				if (pos.length === guess.length) {
+					grid.forEach((row, i) => {
+						const box = row[j];
+						if (box.type === "guess") {
+							if (toNumberedStr[i][j] !== guessStr) {
+								console.log("col rem", i, j, guessStr);
+								let upd = false;
+								guess.forEach(value => {
+									if (box.value[value - 1]) {
+										upd = true;
+										box.value[value - 1] = false
+									}
+								});
+								if (upd) {
+									updated = true;
+									needUpdate.push(`${i},${j}`)
+								}
+							}
+						}
+					})
+				}
+			}
+		});
+		blocks.forEach((block, k) => {
+			for (let guessStr in block) {
+				let guess = guessStr.split(" ");
+				const pos = block[guessStr];
+				if (pos.length === guess.length) {
+					const blockRow = Math.floor(k / 3) * 3;
+					const blockCol = k % 3 * 3;
+					for (let i = blockRow; i < blockRow + 3; i++) {
+						for (let j = blockCol; j < blockCol + 3; j++) {
+							const box = grid[i][j];
+							if (box.type === "guess") {
+								if (toNumberedStr[i][j] !== guessStr) {
+									console.log("blo rem", i, j, guessStr);
+									let upd = false;
+									guess.forEach(value => {
+										if (box.value[value - 1]) {
+											upd = true;
+											box.value[value - 1] = false
+										}
+									});
+									if (upd) {
+										updated = true;
+										needUpdate.push(`${i},${j}`)
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		});
+		if (needUpdate.length) {
+			removeGuess(needUpdate)
 		}
-	}));
-	if (updated) {
-		removeGuess()
-	}
+	} while (needUpdate.length > 0);
 	return updated
 }
 
@@ -114,26 +243,17 @@ function solveHiddenSingle() {
 			length: 9
 		}, () => Array.from({
 			length: 9
-		}, () => ({
-			count: 0,
-			position: null
-		})));
+		}, () => []));
 		const cols = Array.from({
 			length: 9
 		}, () => Array.from({
 			length: 9
-		}, () => ({
-			count: 0,
-			position: null
-		})));
+		}, () => []));
 		const blocks = Array.from({
 			length: 9
 		}, () => Array.from({
 			length: 9
-		}, () => ({
-			count: 0,
-			position: null
-		})));
+		}, () => []));
 		grid.forEach((row, i) => row.forEach((boxValue, j) => {
 			if (boxValue.type === "guess") {
 				const blockNumber = Math.floor(i / 3) * 3 + Math.floor(j / 3);
@@ -141,37 +261,34 @@ function solveHiddenSingle() {
 					if (!isTrue) {
 						return
 					}
-					rows[i][value].count++;
-					rows[i][value].position = [i, j];
-					cols[j][value].count++;
-					cols[j][value].position = [i, j];
-					blocks[blockNumber][value].count++;
-					blocks[blockNumber][value].position = [i, j]
+					rows[i][value].push([i, j]);
+					cols[j][value].push([i, j]);
+					blocks[blockNumber][value].push([i, j])
 				})
 			}
 		}));
-		rows.forEach(row => row.forEach((rowValue, value) => {
-			if (rowValue.count === 1 && grid[rowValue.position[0]][rowValue.position[1]].type === "guess") {
+		rows.forEach(row => row.forEach((rowPositions, value) => {
+			if (rowPositions.length === 1 && grid[rowPositions[0][0]][rowPositions[0][1]].type === "guess") {
 				updated = true;
-				grid[rowValue.position[0]][rowValue.position[1]].type = "number";
-				grid[rowValue.position[0]][rowValue.position[1]].value = value + 1;
-				needUpdate.push(`${rowValue.position[0]},${rowValue.position[1]}`)
+				grid[rowPositions[0][0]][rowPositions[0][1]].type = "number";
+				grid[rowPositions[0][0]][rowPositions[0][1]].value = value + 1;
+				needUpdate.push(`${rowPositions[0][0]},${rowPositions[0][1]}`)
 			}
 		}));
-		cols.forEach(col => col.forEach((colValue, value) => {
-			if (colValue.count === 1 && grid[rowValue.position[0]][colValue.position[1]].type === "guess") {
+		cols.forEach(col => col.forEach((colPositions, value) => {
+			if (colPositions.length === 1 && grid[colPositions[0][0]][colPositions[0][1]].type === "guess") {
 				updated = true;
-				grid[colValue.position[0]][colValue.position[1]].type = "number";
-				grid[colValue.position[0]][colValue.position[1]].value = value + 1;
-				needUpdate.push(`${colValue.position[0]},${colValue.position[1]}`)
+				grid[colPositions[0][0]][colPositions[0][1]].type = "number";
+				grid[colPositions[0][0]][colPositions[0][1]].value = value + 1;
+				needUpdate.push(`${colPositions[0][0]},${colPositions[0][1]}`)
 			}
 		}));
-		blocks.forEach(block => block.forEach((blockValue, value) => {
-			if (blockValue.count === 1 && grid[rowValue.position[0]][blockValue.position[1]].type === "guess") {
+		blocks.forEach(block => block.forEach((blockPositions, value) => {
+			if (blockPositions.length === 1 && grid[blockPositions[0][0]][blockPositions[0][1]].type === "guess") {
 				updated = true;
-				grid[blockValue.position[0]][blockValue.position[1]].type = "number";
-				grid[blockValue.position[0]][blockValue.position[1]].value = value + 1;
-				needUpdate.push(`${blockValue.position[0]},${blockValue.position[1]}`)
+				grid[blockPositions[0][0]][blockPositions[0][1]].type = "number";
+				grid[blockPositions[0][0]][blockPositions[0][1]].value = value + 1;
+				needUpdate.push(`${blockPositions[0][0]},${blockPositions[0][1]}`)
 			}
 		}));
 		if (needUpdate.length > 0) {
@@ -186,8 +303,8 @@ function autoSolve() {
 	let updated;
 	do {
 		updated = false;
-		if (autoSolveNakedSingle) {
-			updated = solveNakedSingle() || updated
+		if (autoSolveNakedSingle || autoSolveNakedSubset) {
+			updated = solveNakedSingleAndSubset() || updated
 		}
 		if (autoSolveHiddenSingle) {
 			updated = solveHiddenSingle() || updated
@@ -372,6 +489,15 @@ autoSolveNakedSingleEle.addEventListener("change", () => {
 	autoSolveNakedSingle = autoSolveNakedSingleEle.checked;
 	window.localStorage.setItem("sudoku-solver-auto-solve-naked-single", autoSolveNakedSingle);
 	if (autoSolveNakedSingle) {
+		autoSolve();
+		setHistory();
+		display()
+	}
+});
+autoSolveNakedSubsetEle.addEventListener("change", () => {
+	autoSolveNakedSubset = autoSolveNakedSubsetEle.checked;
+	window.localStorage.setItem("sudoku-solver-auto-solve-naked-subset", autoSolveNakedSubset);
+	if (autoSolveNakedSubset) {
 		autoSolve();
 		setHistory();
 		display()

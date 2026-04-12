@@ -32,7 +32,8 @@ const prev = [];
 let boxes = grid.map((row, i) => row.map((_, j) => document.getElementById(`box${i+1}-${j+1}`)));
 let focus = null;
 
-function removeGuess1(needUpdate) {
+function removeGuess(needUpdate) {
+	let updated = false;
 	needUpdate = needUpdate ? new Set(needUpdate) : new Set(Array.from({
 		length: 9
 	}, (_, i) => Array.from({
@@ -43,57 +44,69 @@ function removeGuess1(needUpdate) {
 		needUpdate.delete(update);
 		const [i, j] = update.split(",").map(Number);
 		const boxValue = grid[i][j];
-		if (autoSolveNakedSingle && boxValue.type === "guess") {
-			const filt = boxValue.value.map((value, i) => ({
-				value,
-				i
-			})).filter(({
-				value
-			}) => value).map(({
-				i
-			}) => i + 1);
-			if (filt.length === 1) {
-				boxValue.type = "number";
-				boxValue.value = filt[0]
+		if (boxValue.type === "guess") {
+			continue
+		}
+		const positions = new Set;
+		for (let y = 0; y < 9; y++) {
+			if (y !== j) {
+				positions.add(`${i},${y}`)
 			}
 		}
-		if (boxValue.type !== "guess") {
-			const positions = new Set;
-			for (let y = 0; y < 9; y++) {
-				if (y !== j) {
-					positions.add(`${i},${y}`)
-				}
+		for (let x = 0; x < 9; x++) {
+			if (x !== i) {
+				positions.add(`${x},${j}`)
 			}
-			for (let x = 0; x < 9; x++) {
-				if (x !== i) {
-					positions.add(`${x},${j}`)
-				}
-			}
-			const blockRow = Math.floor(i / 3) * 3;
-			const blockCol = Math.floor(j / 3) * 3;
-			for (let x = blockRow; x < blockRow + 3; x++) {
-				for (let y = blockCol; y < blockCol + 3; y++) {
-					if (x === i && y === j) {
-						continue
-					}
-					positions.add(`${x},${y}`)
-				}
-			}
-			Array.from(positions).map(s => s.split(",").map(Number)).forEach(([x, y]) => {
-				if (grid[x][y].type === "guess" && grid[x][y].value[boxValue.value - 1]) {
-					grid[x][y].value[boxValue.value - 1] = false;
-					needUpdate.add(`${x},${y}`)
-				}
-			})
 		}
+		const blockRow = Math.floor(i / 3) * 3;
+		const blockCol = Math.floor(j / 3) * 3;
+		for (let x = blockRow; x < blockRow + 3; x++) {
+			for (let y = blockCol; y < blockCol + 3; y++) {
+				if (x === i && y === j) {
+					continue
+				}
+				positions.add(`${x},${y}`)
+			}
+		}
+		Array.from(positions).map(s => s.split(",").map(Number)).forEach(([x, y]) => {
+			if (grid[x][y].type === "guess" && grid[x][y].value[boxValue.value - 1]) {
+				updated = true;
+				grid[x][y].value[boxValue.value - 1] = false;
+				needUpdate.add(`${x},${y}`)
+			}
+		})
 	}
+	return updated
 }
 
-function removeGuess2() {
-	removeGuess1();
-	if (!autoSolveHiddenSingle) {
-		return
+function solveNakedSingle() {
+	let updated = false;
+	grid.forEach((row, i) => row.forEach((boxValue, j) => {
+		if (boxValue.type !== "guess") {
+			return
+		}
+		const filt = boxValue.value.map((value, i) => ({
+			value,
+			i
+		})).filter(({
+			value
+		}) => value).map(({
+			i
+		}) => i + 1);
+		if (filt.length === 1) {
+			updated = true;
+			boxValue.type = "number";
+			boxValue.value = filt[0]
+		}
+	}));
+	if (updated) {
+		removeGuess()
 	}
+	return updated
+}
+
+function solveHiddenSingle() {
+	let updated = false;
 	const needUpdate = [];
 	do {
 		needUpdate.length = 0;
@@ -138,34 +151,48 @@ function removeGuess2() {
 			}
 		}));
 		rows.forEach(row => row.forEach((rowValue, value) => {
-			if (rowValue.count === 1) {
+			if (rowValue.count === 1 && grid[rowValue.position[0]][rowValue.position[1]].type === "guess") {
+				updated = true;
 				grid[rowValue.position[0]][rowValue.position[1]].type = "number";
 				grid[rowValue.position[0]][rowValue.position[1]].value = value + 1;
 				needUpdate.push(`${rowValue.position[0]},${rowValue.position[1]}`)
 			}
 		}));
 		cols.forEach(col => col.forEach((colValue, value) => {
-			if (colValue.count === 1) {
+			if (colValue.count === 1 && grid[rowValue.position[0]][colValue.position[1]].type === "guess") {
+				updated = true;
 				grid[colValue.position[0]][colValue.position[1]].type = "number";
 				grid[colValue.position[0]][colValue.position[1]].value = value + 1;
 				needUpdate.push(`${colValue.position[0]},${colValue.position[1]}`)
 			}
 		}));
 		blocks.forEach(block => block.forEach((blockValue, value) => {
-			if (blockValue.count === 1) {
+			if (blockValue.count === 1 && grid[rowValue.position[0]][blockValue.position[1]].type === "guess") {
+				updated = true;
 				grid[blockValue.position[0]][blockValue.position[1]].type = "number";
 				grid[blockValue.position[0]][blockValue.position[1]].value = value + 1;
 				needUpdate.push(`${blockValue.position[0]},${blockValue.position[1]}`)
 			}
 		}));
 		if (needUpdate.length > 0) {
-			removeGuess1(needUpdate)
+			removeGuess(needUpdate)
 		}
-	} while (needUpdate.length > 0)
+	} while (needUpdate.length > 0);
+	return updated
 }
 
-function removeGuess() {
-	removeGuess2()
+function autoSolve() {
+	removeGuess();
+	let updated;
+	do {
+		updated = false;
+		if (autoSolveNakedSingle) {
+			updated = solveNakedSingle() || updated
+		}
+		if (autoSolveHiddenSingle) {
+			updated = solveHiddenSingle() || updated
+		}
+	} while (updated)
 }
 
 function addGuess(i, j) {
@@ -286,12 +313,12 @@ function solve() {
 }
 
 function resetNotes() {
-	grid.forEach((row, i) => row.forEach((boxValue, j) => {
+	grid.forEach(row => row.forEach(boxValue => {
 		if (boxValue.type === "guess") {
 			boxValue.value = Array(9).fill(true)
 		}
 	}));
-	removeGuess()
+	autoSolve()
 }
 
 function display() {
@@ -345,7 +372,7 @@ autoSolveNakedSingleEle.addEventListener("change", () => {
 	autoSolveNakedSingle = autoSolveNakedSingleEle.checked;
 	window.localStorage.setItem("sudoku-solver-auto-solve-naked-single", autoSolveNakedSingle);
 	if (autoSolveNakedSingle) {
-		removeGuess();
+		autoSolve();
 		setHistory();
 		display()
 	}
@@ -354,7 +381,7 @@ autoSolveHiddenSingleEle.addEventListener("change", () => {
 	autoSolveHiddenSingle = autoSolveHiddenSingleEle.checked;
 	window.localStorage.setItem("sudoku-solver-auto-solve-hidden-single", autoSolveHiddenSingle);
 	if (autoSolveHiddenSingle) {
-		removeGuess();
+		autoSolve();
 		setHistory();
 		display()
 	}
@@ -446,7 +473,7 @@ document.addEventListener("keydown", e => {
 				type: "number",
 				value: Number(e.key)
 			};
-			removeGuess();
+			autoSolve();
 			setHistory();
 			display()
 		} else if (e.key === "Backspace" || e.key === "Delete") {
@@ -457,7 +484,7 @@ document.addEventListener("keydown", e => {
 				type: "guess",
 				value: Array(9).fill(true)
 			};
-			removeGuess();
+			autoSolve();
 			setHistory();
 			display()
 		}

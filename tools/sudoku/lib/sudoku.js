@@ -1,7 +1,13 @@
 const buttonReset = document.getElementById("button-reset");
 const buttonSolve = document.getElementById("button-solve");
 const buttonResetNotes = document.getElementById("button-reset-notes");
+const autoSolveNakedSingleEle = document.getElementById("auto-solve-naked-single");
+const autoSolveHiddenSingleEle = document.getElementById("auto-solve-hidden-single");
 const multipleAnswerCheckEle = document.getElementById("multiple-answer-check");
+let autoSolveNakedSingle = window.localStorage.getItem("sudoku-solver-auto-solve-naked-single") === "true";
+autoSolveNakedSingleEle.checked = autoSolveNakedSingle;
+let autoSolveHiddenSingle = window.localStorage.getItem("sudoku-solver-auto-solve-hidden-single") === "true";
+autoSolveHiddenSingleEle.checked = autoSolveHiddenSingle;
 let multipleAnswerCheck = window.localStorage.getItem("sudoku-solver-multiple-answer-check") !== "false";
 multipleAnswerCheckEle.checked = multipleAnswerCheck;
 
@@ -37,7 +43,7 @@ function removeGuess1(needUpdate) {
 		needUpdate.delete(update);
 		const [i, j] = update.split(",").map(Number);
 		const boxValue = grid[i][j];
-		if (boxValue.type === "guess") {
+		if (autoSolveNakedSingle && boxValue.type === "guess") {
 			const filt = boxValue.value.map((value, i) => ({
 				value,
 				i
@@ -85,6 +91,9 @@ function removeGuess1(needUpdate) {
 
 function removeGuess2() {
 	removeGuess1();
+	if (!autoSolveHiddenSingle) {
+		return
+	}
 	const needUpdate = [];
 	do {
 		needUpdate.length = 0;
@@ -313,7 +322,11 @@ display();
 
 function setHistory() {
 	prev.length = prevI + 1;
-	prev.push(JSON.stringify(grid));
+	const newHistory = JSON.stringify(grid);
+	if (newHistory === prev.at(-1)) {
+		return
+	}
+	prev.push(newHistory);
 	prevI = prev.length - 1;
 	if (prev.length > 300) {
 		prev.shift()
@@ -328,6 +341,24 @@ function removeFocus() {
 function setFocus() {
 	boxes[focus.x - 1]?.[focus.y - 1]?.classList?.add("box-focus")
 }
+autoSolveNakedSingleEle.addEventListener("change", () => {
+	autoSolveNakedSingle = autoSolveNakedSingleEle.checked;
+	window.localStorage.setItem("sudoku-solver-auto-solve-naked-single", autoSolveNakedSingle);
+	if (autoSolveNakedSingle) {
+		removeGuess();
+		setHistory();
+		display()
+	}
+});
+autoSolveHiddenSingleEle.addEventListener("change", () => {
+	autoSolveHiddenSingle = autoSolveHiddenSingleEle.checked;
+	window.localStorage.setItem("sudoku-solver-auto-solve-hidden-single", autoSolveHiddenSingle);
+	if (autoSolveHiddenSingle) {
+		removeGuess();
+		setHistory();
+		display()
+	}
+});
 multipleAnswerCheckEle.addEventListener("change", () => {
 	multipleAnswerCheck = multipleAnswerCheckEle.checked;
 	window.localStorage.setItem("sudoku-solver-multiple-answer-check", multipleAnswerCheck)

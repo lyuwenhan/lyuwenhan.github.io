@@ -30,7 +30,7 @@ function resetGrid() {
 	})))
 }
 resetGrid();
-let prevI = 0;
+let prevI = -1;
 const prev = [];
 let boxes = grid.map((row, i) => row.map((_, j) => document.getElementById(`box${i+1}-${j+1}`)));
 let focus = null;

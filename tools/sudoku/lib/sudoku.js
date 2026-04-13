@@ -17,9 +17,6 @@ autoSolvePointingNumbersEle.checked = autoSolvePointingNumbers;
 let multipleAnswerCheck = window.localStorage.getItem("sudoku-solver-multiple-answer-check") !== "false";
 multipleAnswerCheckEle.checked = multipleAnswerCheck;
 
-function between(a) {
-	return 1 <= a && a <= 9
-}
 let grid;
 
 function resetGrid() {

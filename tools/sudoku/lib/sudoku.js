@@ -93,6 +93,32 @@ function boolToNumber(arr) {
 	}) => i + 1)
 }
 
+function getPositions(x, y) {
+	const positions = new Set;
+	for (let y = 0; y < 9; y++) {
+		if (y !== y - 1) {
+			positions.add(`${x-1},${y}`)
+		}
+	}
+	for (let x = 0; x < 9; x++) {
+		if (x !== x - 1) {
+			positions.add(`${x},${y-1}`)
+		}
+	}
+	const blockRow = Math.floor((x - 1) / 3) * 3;
+	const blockCol = Math.floor((y - 1) / 3) * 3;
+	for (let x = blockRow; x < blockRow + 3; x++) {
+		for (let y = blockCol; y < blockCol + 3; y++) {
+			if (x === x - 1 && y === y - 1) {
+				continue
+			}
+			positions.add(`${x},${y}`)
+		}
+	}
+	positions.delete(`${x-1},${y-1}`);
+	return Array.from(positions).map(s => s.split(",").map(Number))
+}
+
 function solveNakedSingleAndSubset() {
 	const solveSingel = autoSolveNakedSingle;
 	const solveSubset = autoSolveNakedSubset;
@@ -317,28 +343,7 @@ function addGuess(i, j) {
 	if (boxValue.type === "guess") {
 		return
 	}
-	const positions = new Set;
-	for (let y = 0; y < 9; y++) {
-		if (y !== j - 1) {
-			positions.add(`${i-1},${y}`)
-		}
-	}
-	for (let x = 0; x < 9; x++) {
-		if (x !== i - 1) {
-			positions.add(`${x},${j-1}`)
-		}
-	}
-	const blockRow = Math.floor((i - 1) / 3) * 3;
-	const blockCol = Math.floor((j - 1) / 3) * 3;
-	for (let x = blockRow; x < blockRow + 3; x++) {
-		for (let y = blockCol; y < blockCol + 3; y++) {
-			if (x === i - 1 && y === j - 1) {
-				continue
-			}
-			positions.add(`${x},${y}`)
-		}
-	}
-	Array.from(positions).map(s => s.split(",").map(Number)).forEach(([x, y]) => {
+	getPositions(i, j).forEach(([x, y]) => {
 		if (grid[x][y].type === "guess") {
 			grid[x][y].value[boxValue.value - 1] = true
 		}
@@ -488,6 +493,10 @@ function setFocus() {
 		boxes[x - 1]?.[y - 1]?.classList?.add("box-focus")
 	}
 }
+
+function posOk(x, y, num) {
+	return getPositions(x, y).every(pos => grid[pos[0]][pos[1]].type !== "number" || grid[pos[0]][pos[1]].value !== num)
+}
 autoSolveNakedSingleEle.addEventListener("change", () => {
 	autoSolveNakedSingle = autoSolveNakedSingleEle.checked;
 	window.localStorage.setItem("sudoku-solver-auto-solve-naked-single", autoSolveNakedSingle);
@@ -577,8 +586,8 @@ document.addEventListener("keydown", e => {
 		}
 	} else if (e.key.startsWith("Arrow")) {
 		e.preventDefault();
-		const oldFocus = focus;
-		focus = new Set;
+		const oldFocus = new Set(focus);
+		focus.clear();
 		for (const pos of oldFocus) {
 			let [x, y] = pos.split(",").map(Number);
 			if (e.key === "ArrowUp") {
@@ -602,17 +611,22 @@ document.addEventListener("keydown", e => {
 		}
 		removeFocus();
 		setFocus()
-	} else if (!e.repeat && focus) {
+	} else if (!e.repeat && focus.size > 0) {
 		if (/^[1-9]$/.test(e.key)) {
+			const num = Number(e.key);
 			for (const pos of focus) {
 				const [x, y] = pos.split(",").map(Number);
+				if (grid[x - 1][y - 1].type === "guess" && !grid[x - 1][y - 1].value[num - 1]) {
+					continue
+				}
 				if (grid[x - 1][y - 1].type !== "guess") {
 					addGuess(x, y)
 				}
 				grid[x - 1][y - 1] = {
 					type: "number",
-					value: Number(e.key)
-				}
+					value: num
+				};
+				removeGuess([`${x-1},${y-1}`])
 			}
 			autoSolve();
 			setHistory();

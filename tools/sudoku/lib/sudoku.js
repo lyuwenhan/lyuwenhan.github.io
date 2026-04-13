@@ -33,7 +33,7 @@ resetGrid();
 let prevI = -1;
 const prev = [];
 let boxes = grid.map((row, i) => row.map((_, j) => document.getElementById(`box${i+1}-${j+1}`)));
-let focus = null;
+const focus = new Set;
 
 function removeGuess(needUpdate) {
 	let updated = false;
@@ -483,7 +483,10 @@ function removeFocus() {
 }
 
 function setFocus() {
-	boxes[focus.x - 1]?.[focus.y - 1]?.classList?.add("box-focus")
+	for (const pos of focus) {
+		const [x, y] = pos.split(",").map(Number);
+		boxes[x - 1]?.[y - 1]?.classList?.add("box-focus")
+	}
 }
 autoSolveNakedSingleEle.addEventListener("change", () => {
 	autoSolveNakedSingle = autoSolveNakedSingleEle.checked;
@@ -530,21 +533,28 @@ buttonResetNotes.addEventListener("click", () => {
 	display()
 });
 document.addEventListener("click", e => {
-	removeFocus();
-	focus = null;
 	const td = e.target.closest("td.box");
+	removeFocus();
 	if (td) {
 		const match = td.id.match(/^box(\d+)[-_](\d+)$/);
 		if (match) {
 			const x = Number(match[1]);
 			const y = Number(match[2]);
-			focus = {
-				x,
-				y
-			};
-			setFocus()
+			if (e.ctrlKey || e.metaKey) {
+				if (focus.has(`${x},${y}`)) {
+					focus.delete(`${x},${y}`)
+				} else {
+					focus.add(`${x},${y}`)
+				}
+			} else {
+				focus.clear();
+				focus.add(`${x},${y}`)
+			}
+			setFocus();
+			return
 		}
 	}
+	focus.clear()
 });
 document.addEventListener("keydown", e => {
 	if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
@@ -567,49 +577,57 @@ document.addEventListener("keydown", e => {
 		}
 	} else if (e.key.startsWith("Arrow")) {
 		e.preventDefault();
-		if (e.key === "ArrowUp") {
-			if (focus.x <= 1) {
-				return
+		const oldFocus = focus;
+		focus = new Set;
+		for (const pos of oldFocus) {
+			let [x, y] = pos.split(",").map(Number);
+			if (e.key === "ArrowUp") {
+				if (x > 1) {
+					x--
+				}
+			} else if (e.key === "ArrowDown") {
+				if (x < 9) {
+					x++
+				}
+			} else if (e.key === "ArrowLeft") {
+				if (y > 1) {
+					y--
+				}
+			} else {
+				if (y < 9) {
+					y++
+				}
 			}
-			focus.x--
-		} else if (e.key === "ArrowDown") {
-			if (focus.x >= 9) {
-				return
-			}
-			focus.x++
-		} else if (e.key === "ArrowLeft") {
-			if (focus.y <= 1) {
-				return
-			}
-			focus.y--
-		} else {
-			if (focus.y >= 9) {
-				return
-			}
-			focus.y++
+			focus.add(`${x},${y}`)
 		}
 		removeFocus();
 		setFocus()
-	} else if (!e.repeat && focus && between(focus.x) && between(focus.y)) {
+	} else if (!e.repeat && focus) {
 		if (/^[1-9]$/.test(e.key)) {
-			if (grid[focus.x - 1][focus.y - 1].type !== "guess") {
-				addGuess(focus.x, focus.y)
+			for (const pos of focus) {
+				const [x, y] = pos.split(",").map(Number);
+				if (grid[x - 1][y - 1].type !== "guess") {
+					addGuess(x, y)
+				}
+				grid[x - 1][y - 1] = {
+					type: "number",
+					value: Number(e.key)
+				}
 			}
-			grid[focus.x - 1][focus.y - 1] = {
-				type: "number",
-				value: Number(e.key)
-			};
 			autoSolve();
 			setHistory();
 			display()
 		} else if (e.key === "Backspace" || e.key === "Delete") {
-			if (grid[focus.x - 1][focus.y - 1].type !== "guess") {
-				addGuess(focus.x, focus.y)
+			for (const pos of focus) {
+				const [x, y] = pos.split(",").map(Number);
+				if (grid[x - 1][y - 1].type !== "guess") {
+					addGuess(x, y)
+				}
+				grid[x - 1][y - 1] = {
+					type: "guess",
+					value: Array(9).fill(true)
+				}
 			}
-			grid[focus.x - 1][focus.y - 1] = {
-				type: "guess",
-				value: Array(9).fill(true)
-			};
 			autoSolve();
 			setHistory();
 			display()

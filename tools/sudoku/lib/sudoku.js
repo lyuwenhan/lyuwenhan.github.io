@@ -598,8 +598,8 @@ autoSolveHiddenSingleEle.addEventListener("change", () => {
 		display()
 	}
 });
-autoSolvePointingNumbers.addEventListener("change", () => {
-	autoSolveHiddenSingle = autoSolvePointingNumbers.checked;
+autoSolvePointingNumbersEle.addEventListener("change", () => {
+	autoSolveHiddenSingle = autoSolvePointingNumbersEle.checked;
 	window.localStorage.setItem("sudoku-solver-auto-solve-pointing-numbers", autoSolvePointingNumbers);
 	if (autoSolvePointingNumbers) {
 		autoSolve();

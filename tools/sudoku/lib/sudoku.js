@@ -641,7 +641,7 @@ document.addEventListener("keydown", e => {
 				display()
 			}
 		}
-	} else if (e.key.startsWith("Arrow")) {
+	} else if (e.key.startsWith("Arrow") && focus.size >= 0) {
 		e.preventDefault();
 		const oldFocus = new Set(focus);
 		focus.clear();

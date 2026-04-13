@@ -4,6 +4,7 @@ const buttonResetNotes = document.getElementById("button-reset-notes");
 const autoSolveNakedSingleEle = document.getElementById("auto-solve-naked-single");
 const autoSolveNakedSubsetEle = document.getElementById("auto-solve-naked-subset");
 const autoSolveHiddenSingleEle = document.getElementById("auto-solve-hidden-single");
+const autoSolvePointingNumbersEle = document.getElementById("auto-solve-pointing-numbers");
 const multipleAnswerCheckEle = document.getElementById("multiple-answer-check");
 let autoSolveNakedSingle = window.localStorage.getItem("sudoku-solver-auto-solve-naked-single") !== "false";
 autoSolveNakedSingleEle.checked = autoSolveNakedSingle;
@@ -11,6 +12,8 @@ let autoSolveNakedSubset = window.localStorage.getItem("sudoku-solver-auto-solve
 autoSolveNakedSubsetEle.checked = autoSolveNakedSubset;
 let autoSolveHiddenSingle = window.localStorage.getItem("sudoku-solver-auto-solve-hidden-single") !== "false";
 autoSolveHiddenSingleEle.checked = autoSolveHiddenSingle;
+let autoSolvePointingNumbers = window.localStorage.getItem("sudoku-solver-auto-solve-pointing-numbers") !== "false";
+autoSolvePointingNumbersEle.checked = autoSolvePointingNumbers;
 let multipleAnswerCheck = window.localStorage.getItem("sudoku-solver-multiple-answer-check") !== "false";
 multipleAnswerCheckEle.checked = multipleAnswerCheck;
 
@@ -34,6 +37,43 @@ let prevI = -1;
 const prev = [];
 let boxes = grid.map((row, i) => row.map((_, j) => document.getElementById(`box${i+1}-${j+1}`)));
 const focus = new Set;
+
+function boolToNumber(arr) {
+	return arr.map((value, i) => ({
+		value,
+		i
+	})).filter(({
+		value
+	}) => value).map(({
+		i
+	}) => i + 1)
+}
+
+function getPositions(i, j) {
+	const positions = new Set;
+	for (let y = 0; y < 9; y++) {
+		if (y !== j - 1) {
+			positions.add(`${i-1},${y}`)
+		}
+	}
+	for (let x = 0; x < 9; x++) {
+		if (x !== i - 1) {
+			positions.add(`${x},${j-1}`)
+		}
+	}
+	const blockRow = Math.floor((i - 1) / 3) * 3;
+	const blockCol = Math.floor((j - 1) / 3) * 3;
+	for (let x = blockRow; x < blockRow + 3; x++) {
+		for (let y = blockCol; y < blockCol + 3; y++) {
+			if (x === i - 1 && y === j - 1) {
+				continue
+			}
+			positions.add(`${x},${y}`)
+		}
+	}
+	positions.delete(`${i-1},${j-1}`);
+	return Array.from(positions).map(s => s.split(",").map(Number))
+}
 
 function removeGuess(needUpdate) {
 	let updated = false;
@@ -82,45 +122,8 @@ function removeGuess(needUpdate) {
 	return updated
 }
 
-function boolToNumber(arr) {
-	return arr.map((value, i) => ({
-		value,
-		i
-	})).filter(({
-		value
-	}) => value).map(({
-		i
-	}) => i + 1)
-}
-
-function getPositions(x, y) {
-	const positions = new Set;
-	for (let y = 0; y < 9; y++) {
-		if (y !== y - 1) {
-			positions.add(`${x-1},${y}`)
-		}
-	}
-	for (let x = 0; x < 9; x++) {
-		if (x !== x - 1) {
-			positions.add(`${x},${y-1}`)
-		}
-	}
-	const blockRow = Math.floor((x - 1) / 3) * 3;
-	const blockCol = Math.floor((y - 1) / 3) * 3;
-	for (let x = blockRow; x < blockRow + 3; x++) {
-		for (let y = blockCol; y < blockCol + 3; y++) {
-			if (x === x - 1 && y === y - 1) {
-				continue
-			}
-			positions.add(`${x},${y}`)
-		}
-	}
-	positions.delete(`${x-1},${y-1}`);
-	return Array.from(positions).map(s => s.split(",").map(Number))
-}
-
 function solveNakedSingleAndSubset() {
-	const solveSingel = autoSolveNakedSingle;
+	const solveSingle = autoSolveNakedSingle;
 	const solveSubset = autoSolveNakedSubset;
 	let updated = false;
 	const needUpdate = [];
@@ -143,7 +146,7 @@ function solveNakedSingleAndSubset() {
 				return
 			}
 			const filt = toNumbered[i][j];
-			if (solveSingel && filt.length === 1) {
+			if (solveSingle && filt.length === 1) {
 				nakedSingle.push([i, j, filt[0]]);
 				updated = true;
 				needUpdate.push(`${i},${j}`)
@@ -324,6 +327,74 @@ function solveHiddenSingle() {
 	return updated
 }
 
+function solvePointingNumbers() {
+	let updated = false;
+	let thisUpdated;
+	do {
+		thisUpdated = false;
+		const rows = Array.from({
+			length: 9
+		}, () => Array.from({
+			length: 9
+		}, () => Array(3).fill(false)));
+		const cols = Array.from({
+			length: 9
+		}, () => Array.from({
+			length: 9
+		}, () => Array(3).fill(false)));
+		grid.forEach((row, i) => row.forEach((boxValue, j) => {
+			if (boxValue.type !== "guess") {
+				return
+			}
+			const blockRow = Math.floor(i / 3) * 3;
+			const blockCol = Math.floor(j / 3) * 3;
+			const blockNumber = blockRow + blockCol / 3;
+			boxValue.value.forEach((isTrue, number) => {
+				if (!isTrue) {
+					return
+				}
+				rows[blockNumber][number][i - blockRow] = true;
+				cols[blockNumber][number][j - blockCol] = true
+			})
+		}));
+		rows.forEach((block, k) => {
+			block.forEach((valueBool, number) => {
+				const innerRow = boolToNumber(valueBool);
+				if (innerRow.length === 1) {
+					const row = Math.floor(k / 3) * 3 + innerRow[0] - 1;
+					for (let col = 0; col < 9; col++) {
+						if (Math.floor(col / 3) === k % 3) {
+							continue
+						}
+						if (grid[row][col].type === "guess" && grid[row][col].value[number]) {
+							grid[row][col].value[number] = false;
+							thisUpdated = updated = true
+						}
+					}
+				}
+			})
+		});
+		cols.forEach((block, k) => {
+			block.forEach((valueBool, number) => {
+				const innerCol = boolToNumber(valueBool);
+				if (innerCol.length === 1) {
+					const col = k % 3 * 3 + innerCol[0] - 1;
+					for (let row = 0; row < 9; row++) {
+						if (Math.floor(row / 3) === Math.floor(k / 3)) {
+							continue
+						}
+						if (grid[row][col].type === "guess" && grid[row][col].value[number]) {
+							grid[row][col].value[number] = false;
+							thisUpdated = updated = true
+						}
+					}
+				}
+			})
+		})
+	} while (thisUpdated);
+	return updated
+}
+
 function autoSolve() {
 	removeGuess();
 	let updated;
@@ -334,6 +405,9 @@ function autoSolve() {
 		}
 		if (autoSolveHiddenSingle) {
 			updated = solveHiddenSingle() || updated
+		}
+		if (autoSolvePointingNumbers) {
+			updated = solvePointingNumbers() || updated
 		}
 	} while (updated)
 }
@@ -353,6 +427,41 @@ function addGuess(i, j) {
 		value: Array(9).fill(true)
 	}
 }
+
+function resetNotes() {
+	grid.forEach(row => row.forEach(boxValue => {
+		if (boxValue.type === "guess") {
+			boxValue.value = Array(9).fill(true)
+		}
+	}));
+	autoSolve()
+}
+
+function display() {
+	boxes.forEach((row, i) => row.forEach((box, j) => {
+		const boxValue = grid[i][j];
+		box.innerHTML = "";
+		if (boxValue.type === "guess") {
+			boxValue.value.forEach((isTrue, number) => {
+				if (!isTrue) {
+					return
+				}
+				const numberEle = document.createElement("span");
+				numberEle.classList.add("box-guess");
+				numberEle.classList.add(`box-guess-${number+1}`);
+				numberEle.innerText = number + 1;
+				box.append(numberEle)
+			})
+		} else {
+			const numberEle = document.createElement("span");
+			numberEle.classList.add("box-value");
+			numberEle.classList.add(`box-value-${boxValue.value}`);
+			numberEle.innerText = boxValue.value;
+			box.append(numberEle)
+		}
+	}))
+}
+display();
 
 function solve() {
 	const triggerNumber = multipleAnswerCheck ? 2 : 1;
@@ -434,41 +543,6 @@ function solve() {
 	}
 }
 
-function resetNotes() {
-	grid.forEach(row => row.forEach(boxValue => {
-		if (boxValue.type === "guess") {
-			boxValue.value = Array(9).fill(true)
-		}
-	}));
-	autoSolve()
-}
-
-function display() {
-	boxes.forEach((row, i) => row.forEach((box, j) => {
-		const boxValue = grid[i][j];
-		box.innerHTML = "";
-		if (boxValue.type === "guess") {
-			boxValue.value.forEach((isTrue, number) => {
-				if (!isTrue) {
-					return false
-				}
-				const numberEle = document.createElement("span");
-				numberEle.classList.add("box-guess");
-				numberEle.classList.add(`box-guess-${number+1}`);
-				numberEle.innerText = number + 1;
-				box.append(numberEle)
-			})
-		} else {
-			const numberEle = document.createElement("span");
-			numberEle.classList.add("box-value");
-			numberEle.classList.add(`box-value-${boxValue.value}`);
-			numberEle.innerText = boxValue.value;
-			box.append(numberEle)
-		}
-	}))
-}
-display();
-
 function setHistory() {
 	prev.length = prevI + 1;
 	const newHistory = JSON.stringify(grid);
@@ -519,6 +593,15 @@ autoSolveHiddenSingleEle.addEventListener("change", () => {
 	autoSolveHiddenSingle = autoSolveHiddenSingleEle.checked;
 	window.localStorage.setItem("sudoku-solver-auto-solve-hidden-single", autoSolveHiddenSingle);
 	if (autoSolveHiddenSingle) {
+		autoSolve();
+		setHistory();
+		display()
+	}
+});
+autoSolvePointingNumbers.addEventListener("change", () => {
+	autoSolveHiddenSingle = autoSolvePointingNumbers.checked;
+	window.localStorage.setItem("sudoku-solver-auto-solve-pointing-numbers", autoSolvePointingNumbers);
+	if (autoSolvePointingNumbers) {
 		autoSolve();
 		setHistory();
 		display()

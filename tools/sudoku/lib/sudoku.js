@@ -16,7 +16,6 @@ let autoSolvePointingNumbers = window.localStorage.getItem("sudoku-solver-auto-s
 autoSolvePointingNumbersEle.checked = autoSolvePointingNumbers;
 let multipleAnswerCheck = window.localStorage.getItem("sudoku-solver-multiple-answer-check") !== "false";
 multipleAnswerCheckEle.checked = multipleAnswerCheck;
-
 let grid;
 
 function resetGrid() {
@@ -25,7 +24,7 @@ function resetGrid() {
 	}, () => Array.from({
 		length: 9
 	}, () => ({
-		type: "guess",
+		isNumber: false,
 		value: Array(9).fill(true)
 	})))
 }
@@ -43,32 +42,32 @@ function boolToNumber(arr) {
 		value
 	}) => value).map(({
 		i
-	}) => i + 1)
+	}) => i)
 }
 
 function getPositions(i, j) {
 	const positions = new Set;
 	for (let y = 0; y < 9; y++) {
-		if (y !== j - 1) {
-			positions.add(`${i-1},${y}`)
+		if (y !== j) {
+			positions.add(`${i},${y}`)
 		}
 	}
 	for (let x = 0; x < 9; x++) {
-		if (x !== i - 1) {
-			positions.add(`${x},${j-1}`)
+		if (x !== i) {
+			positions.add(`${x},${j}`)
 		}
 	}
-	const blockRow = Math.floor((i - 1) / 3) * 3;
-	const blockCol = Math.floor((j - 1) / 3) * 3;
+	const blockRow = Math.floor(i / 3) * 3;
+	const blockCol = Math.floor(j / 3) * 3;
 	for (let x = blockRow; x < blockRow + 3; x++) {
 		for (let y = blockCol; y < blockCol + 3; y++) {
-			if (x === i - 1 && y === j - 1) {
+			if (x === i && y === j) {
 				continue
 			}
 			positions.add(`${x},${y}`)
 		}
 	}
-	positions.delete(`${i-1},${j-1}`);
+	positions.delete(`${i},${j}`);
 	return Array.from(positions).map(s => s.split(",").map(Number))
 }
 
@@ -79,16 +78,15 @@ function removeGuess(needUpdate) {
 	}, (_, i) => Array.from({
 		length: 9
 	}, (_, j) => `${i},${j}`)).flat();
-	needUpdate.forEach(update => {
-		const [i, j] = update.split(",").map(Number);
+	needUpdate.map(update => update.split(",").map(Number)).forEach(([i, j]) => {
 		const boxValue = grid[i][j];
-		if (boxValue.type === "guess") {
+		if (!boxValue.isNumber) {
 			return
 		}
 		getPositions(i, j).forEach(([x, y]) => {
-			if (grid[x][y].type === "guess" && grid[x][y].value[boxValue.value - 1]) {
+			if (!grid[x][y].isNumber && grid[x][y].value[boxValue.value]) {
 				updated = true;
-				grid[x][y].value[boxValue.value - 1] = false
+				grid[x][y].value[boxValue.value] = false
 			}
 		})
 	});
@@ -99,8 +97,10 @@ function solveNakedSingleAndSubset() {
 	const solveSingle = autoSolveNakedSingle;
 	const solveSubset = autoSolveNakedSubset;
 	let updated = false;
+	let thisUpdated;
 	const needUpdate = [];
 	do {
+		thisUpdated = false;
 		needUpdate.length = 0;
 		const nakedSingle = [];
 		const rows = Array.from({
@@ -112,19 +112,18 @@ function solveNakedSingleAndSubset() {
 		const blocks = Array.from({
 			length: 9
 		}, () => ({}));
-		const toNumbered = grid.map(row => row.map(box => box.type === "guess" ? boolToNumber(box.value) : []));
+		const toNumbered = grid.map(row => row.map(box => box.isNumber ? [] : boolToNumber(box.value)));
 		const toNumberedStr = toNumbered.map(row => row.map(box => box.join(" ")));
 		grid.forEach((row, i) => row.forEach((boxValue, j) => {
-			if (boxValue.type !== "guess") {
+			if (boxValue.isNumber) {
 				return
 			}
-			const filt = toNumbered[i][j];
-			if (solveSingle && filt.length === 1) {
-				nakedSingle.push([i, j, filt[0]]);
+			if (solveSingle && toNumbered[i][j].length === 1) {
+				nakedSingle.push([i, j]);
 				needUpdate.push(`${i},${j}`)
-			} else if (solveSubset && filt.length <= 4) {
-				const blockNumber = Math.floor(i / 3) * 3 + Math.floor(j / 3);
-				const numbers = filt.join(" ");
+			} else if (solveSubset && toNumbered[i][j].length <= 4) {
+				const numbers = toNumberedStr[i][j];
+				const k = Math.floor(i / 3) * 3 + Math.floor(j / 3);
 				if (!rows[i][numbers]) {
 					rows[i][numbers] = []
 				}
@@ -133,16 +132,16 @@ function solveNakedSingleAndSubset() {
 					cols[j][numbers] = []
 				}
 				cols[j][numbers].push([i, j]);
-				if (!blocks[blockNumber][numbers]) {
-					blocks[blockNumber][numbers] = []
+				if (!blocks[k][numbers]) {
+					blocks[k][numbers] = []
 				}
-				blocks[blockNumber][numbers].push([i, j])
+				blocks[k][numbers].push([i, j])
 			}
 		}));
-		nakedSingle.forEach(([i, j, value]) => {
+		nakedSingle.forEach(([i, j]) => {
 			const boxValue = grid[i][j];
-			boxValue.type = "number";
-			boxValue.value = value
+			boxValue.isNumber = true;
+			boxValue.value = toNumbered[i][j][0]
 		});
 		rows.forEach((row, i) => {
 			for (let guessStr in row) {
@@ -150,19 +149,14 @@ function solveNakedSingleAndSubset() {
 				const pos = row[guessStr];
 				if (pos.length === guess.length) {
 					grid[i].forEach((box, j) => {
-						if (box.type === "guess") {
+						if (!box.isNumber) {
 							if (toNumberedStr[i][j] !== guessStr) {
-								console.log("row rem", i, j, guessStr);
-								let upd = false;
 								guess.forEach(value => {
-									if (box.value[value - 1]) {
-										upd = true;
-										box.value[value - 1] = false
+									if (box.value[value]) {
+										box.value[value] = false;
+										thisUpdated = true
 									}
-								});
-								if (upd) {
-									needUpdate.push(`${i},${j}`)
-								}
+								})
 							}
 						}
 					})
@@ -176,19 +170,14 @@ function solveNakedSingleAndSubset() {
 				if (pos.length === guess.length) {
 					grid.forEach((row, i) => {
 						const box = row[j];
-						if (box.type === "guess") {
+						if (!box.isNumber) {
 							if (toNumberedStr[i][j] !== guessStr) {
-								console.log("col rem", i, j, guessStr);
-								let upd = false;
 								guess.forEach(value => {
-									if (box.value[value - 1]) {
-										upd = true;
-										box.value[value - 1] = false
+									if (box.value[value]) {
+										box.value[value] = false;
+										thisUpdated = true
 									}
-								});
-								if (upd) {
-									needUpdate.push(`${i},${j}`)
-								}
+								})
 							}
 						}
 					})
@@ -205,19 +194,14 @@ function solveNakedSingleAndSubset() {
 					for (let i = blockRow; i < blockRow + 3; i++) {
 						for (let j = blockCol; j < blockCol + 3; j++) {
 							const box = grid[i][j];
-							if (box.type === "guess") {
+							if (!box.isNumber) {
 								if (toNumberedStr[i][j] !== guessStr) {
-									console.log("blo rem", i, j, guessStr);
-									let upd = false;
 									guess.forEach(value => {
-										if (box.value[value - 1]) {
-											upd = true;
-											box.value[value - 1] = false
+										if (box.value[value]) {
+											box.value[value] = false;
+											thisUpdated = true
 										}
-									});
-									if (upd) {
-										needUpdate.push(`${i},${j}`)
-									}
+									})
 								}
 							}
 						}
@@ -227,9 +211,12 @@ function solveNakedSingleAndSubset() {
 		});
 		if (needUpdate.length) {
 			removeGuess(needUpdate);
-			updated = true
+			thisUpdated = true
 		}
-	} while (needUpdate.length > 0);
+		if (thisUpdated) {
+			updated = thisUpdated
+		}
+	} while (thisUpdated);
 	return updated
 }
 
@@ -254,36 +241,36 @@ function solveHiddenSingle() {
 			length: 9
 		}, () => []));
 		grid.forEach((row, i) => row.forEach((boxValue, j) => {
-			if (boxValue.type === "guess") {
-				const blockNumber = Math.floor(i / 3) * 3 + Math.floor(j / 3);
+			if (!boxValue.isNumber) {
+				const k = Math.floor(i / 3) * 3 + Math.floor(j / 3);
 				boxValue.value.forEach((isTrue, value) => {
 					if (!isTrue) {
 						return
 					}
 					rows[i][value].push([i, j]);
 					cols[j][value].push([i, j]);
-					blocks[blockNumber][value].push([i, j])
+					blocks[k][value].push([i, j])
 				})
 			}
 		}));
 		rows.forEach(row => row.forEach((rowPositions, value) => {
-			if (rowPositions.length === 1 && grid[rowPositions[0][0]][rowPositions[0][1]].type === "guess") {
-				grid[rowPositions[0][0]][rowPositions[0][1]].type = "number";
-				grid[rowPositions[0][0]][rowPositions[0][1]].value = value + 1;
+			if (rowPositions.length === 1 && !grid[rowPositions[0][0]][rowPositions[0][1]].isNumber) {
+				grid[rowPositions[0][0]][rowPositions[0][1]].isNumber = true;
+				grid[rowPositions[0][0]][rowPositions[0][1]].value = value;
 				needUpdate.push(`${rowPositions[0][0]},${rowPositions[0][1]}`)
 			}
 		}));
 		cols.forEach(col => col.forEach((colPositions, value) => {
-			if (colPositions.length === 1 && grid[colPositions[0][0]][colPositions[0][1]].type === "guess") {
-				grid[colPositions[0][0]][colPositions[0][1]].type = "number";
-				grid[colPositions[0][0]][colPositions[0][1]].value = value + 1;
+			if (colPositions.length === 1 && !grid[colPositions[0][0]][colPositions[0][1]].isNumber) {
+				grid[colPositions[0][0]][colPositions[0][1]].isNumber = true;
+				grid[colPositions[0][0]][colPositions[0][1]].value = value;
 				needUpdate.push(`${colPositions[0][0]},${colPositions[0][1]}`)
 			}
 		}));
 		blocks.forEach(block => block.forEach((blockPositions, value) => {
-			if (blockPositions.length === 1 && grid[blockPositions[0][0]][blockPositions[0][1]].type === "guess") {
-				grid[blockPositions[0][0]][blockPositions[0][1]].type = "number";
-				grid[blockPositions[0][0]][blockPositions[0][1]].value = value + 1;
+			if (blockPositions.length === 1 && !grid[blockPositions[0][0]][blockPositions[0][1]].isNumber) {
+				grid[blockPositions[0][0]][blockPositions[0][1]].isNumber = true;
+				grid[blockPositions[0][0]][blockPositions[0][1]].value = value;
 				needUpdate.push(`${blockPositions[0][0]},${blockPositions[0][1]}`)
 			}
 		}));
@@ -311,7 +298,7 @@ function solvePointingNumbers() {
 			length: 9
 		}, () => Array(3).fill(false)));
 		grid.forEach((row, i) => row.forEach((boxValue, j) => {
-			if (boxValue.type !== "guess") {
+			if (boxValue.isNumber) {
 				return
 			}
 			const blockRow = Math.floor(i / 3) * 3;
@@ -329,12 +316,12 @@ function solvePointingNumbers() {
 			block.forEach((valueBool, number) => {
 				const innerRow = boolToNumber(valueBool);
 				if (innerRow.length === 1) {
-					const row = Math.floor(k / 3) * 3 + innerRow[0] - 1;
+					const row = Math.floor(k / 3) * 3 + innerRow[0];
 					for (let col = 0; col < 9; col++) {
 						if (Math.floor(col / 3) === k % 3) {
 							continue
 						}
-						if (grid[row][col].type === "guess" && grid[row][col].value[number]) {
+						if (!grid[row][col].isNumber && grid[row][col].value[number]) {
 							grid[row][col].value[number] = false;
 							thisUpdated = true
 						}
@@ -346,12 +333,12 @@ function solvePointingNumbers() {
 			block.forEach((valueBool, number) => {
 				const innerCol = boolToNumber(valueBool);
 				if (innerCol.length === 1) {
-					const col = k % 3 * 3 + innerCol[0] - 1;
+					const col = k % 3 * 3 + innerCol[0];
 					for (let row = 0; row < 9; row++) {
 						if (Math.floor(row / 3) === Math.floor(k / 3)) {
 							continue
 						}
-						if (grid[row][col].type === "guess" && grid[row][col].value[number]) {
+						if (!grid[row][col].isNumber && grid[row][col].value[number]) {
 							grid[row][col].value[number] = false;
 							thisUpdated = true
 						}
@@ -384,24 +371,20 @@ function autoSolve() {
 }
 
 function addGuess(i, j) {
-	let boxValue = grid[i - 1][j - 1];
-	if (boxValue.type === "guess") {
+	let boxValue = grid[i][j];
+	if (!boxValue.isNumber) {
 		return
 	}
 	getPositions(i, j).forEach(([x, y]) => {
-		if (grid[x][y].type === "guess") {
-			grid[x][y].value[boxValue.value - 1] = true
+		if (!grid[x][y].isNumber) {
+			grid[x][y].value[boxValue.value] = true
 		}
-	});
-	grid[i - 1][j - 1] = {
-		type: "guess",
-		value: Array(9).fill(true)
-	}
+	})
 }
 
 function resetNotes() {
 	grid.forEach(row => row.forEach(boxValue => {
-		if (boxValue.type === "guess") {
+		if (!boxValue.isNumber) {
 			boxValue.value = Array(9).fill(true)
 		}
 	}));
@@ -412,7 +395,7 @@ function display() {
 	boxes.forEach((row, i) => row.forEach((box, j) => {
 		const boxValue = grid[i][j];
 		box.innerHTML = "";
-		if (boxValue.type === "guess") {
+		if (!boxValue.isNumber) {
 			boxValue.value.forEach((isTrue, number) => {
 				if (!isTrue) {
 					return
@@ -426,8 +409,8 @@ function display() {
 		} else {
 			const numberEle = document.createElement("span");
 			numberEle.classList.add("box-value");
-			numberEle.classList.add(`box-value-${boxValue.value}`);
-			numberEle.innerText = boxValue.value;
+			numberEle.classList.add(`box-value-${boxValue.value+1}`);
+			numberEle.innerText = boxValue.value + 1;
 			box.append(numberEle)
 		}
 	}))
@@ -447,55 +430,55 @@ function solve() {
 	}, () => Array(9).fill(false));
 	const answer = [];
 
-	function dfs(x, y) {
-		if (x === 9) {
+	function dfs(i, j) {
+		if (i === 9) {
 			answer.push(grid.map(row => row.map(boxValue => boxValue.value)));
 			return
 		}
-		const nextY = (y + 1) % 9;
-		const nextX = nextY === 0 ? x + 1 : x;
-		if (grid[x][y].type === "number") {
+		const nextY = (j + 1) % 9;
+		const nextX = nextY === 0 ? i + 1 : i;
+		if (grid[i][j].isNumber) {
 			dfs(nextX, nextY);
 			return
 		}
-		for (let i = 0; i < grid[x][y].value.length; i++) {
+		for (let number = 0; number < grid[i][j].value.length; number++) {
 			if (answer.length >= triggerNumber) {
 				return
 			}
-			if (!grid[x][y].value[i]) {
+			if (!grid[i][j].value[number]) {
 				continue
 			}
-			const blockNumber = Math.floor(x / 3) * 3 + Math.floor(y / 3);
-			if (rows[x][i] || cols[y][i] || blocks[blockNumber][i]) {
+			const k = Math.floor(i / 3) * 3 + Math.floor(j / 3);
+			if (rows[i][number] || cols[j][number] || blocks[k][number]) {
 				continue
 			}
-			rows[x][i] = true;
-			cols[y][i] = true;
-			blocks[blockNumber][i] = true;
-			const boxValue = grid[x][y];
-			grid[x][y] = {
-				type: "number",
-				value: i + 1
+			rows[i][number] = true;
+			cols[j][number] = true;
+			blocks[k][number] = true;
+			const boxValue = grid[i][j];
+			grid[i][j] = {
+				isNumber: true,
+				value: number
 			};
 			dfs(nextX, nextY);
-			rows[x][i] = false;
-			cols[y][i] = false;
-			blocks[blockNumber][i] = false;
-			grid[x][y] = boxValue
+			rows[i][number] = false;
+			cols[j][number] = false;
+			blocks[k][number] = false;
+			grid[i][j] = boxValue
 		}
 	}
 	for (let i = 0; i < grid.length; i++) {
 		for (let j = 0; j < grid[i].length; j++) {
 			const boxValue = grid[i][j];
-			if (boxValue.type === "number") {
-				const blockNumber = Math.floor(i / 3) * 3 + Math.floor(j / 3);
-				if (rows[i][boxValue.value - 1] || cols[j][boxValue.value - 1] || blocks[blockNumber][boxValue.value - 1]) {
+			if (boxValue.isNumber) {
+				const k = Math.floor(i / 3) * 3 + Math.floor(j / 3);
+				if (rows[i][boxValue.value] || cols[j][boxValue.value] || blocks[k][boxValue.value]) {
 					alert("Preset numbers conflict.");
 					return
 				}
-				rows[i][boxValue.value - 1] = true;
-				cols[j][boxValue.value - 1] = true;
-				blocks[blockNumber][boxValue.value - 1] = true
+				rows[i][boxValue.value] = true;
+				cols[j][boxValue.value] = true;
+				blocks[k][boxValue.value] = true
 			}
 		}
 	}
@@ -504,7 +487,7 @@ function solve() {
 		alert("No solution.")
 	} else if (answer.length === 1) {
 		grid = answer[0].map(row => row.map(value => ({
-			type: "number",
+			isNumber: true,
 			value
 		})));
 		setHistory();
@@ -521,10 +504,10 @@ function setHistory() {
 		return
 	}
 	prev.push(newHistory);
-	prevI = prev.length - 1;
 	if (prev.length > 300) {
 		prev.shift()
 	}
+	prevI = prev.length - 1
 }
 setHistory();
 
@@ -535,12 +518,8 @@ function removeFocus() {
 function setFocus() {
 	for (const pos of focus) {
 		const [x, y] = pos.split(",").map(Number);
-		boxes[x - 1]?.[y - 1]?.classList?.add("box-focus")
+		boxes[x]?.[y]?.classList?.add("box-focus")
 	}
-}
-
-function posOk(x, y, num) {
-	return getPositions(x, y).every(pos => grid[pos[0]][pos[1]].type !== "number" || grid[pos[0]][pos[1]].value !== num)
 }
 autoSolveNakedSingleEle.addEventListener("change", () => {
 	autoSolveNakedSingle = autoSolveNakedSingleEle.checked;
@@ -601,8 +580,8 @@ document.addEventListener("click", e => {
 	if (td) {
 		const match = td.id.match(/^box(\d+)[-_](\d+)$/);
 		if (match) {
-			const x = Number(match[1]);
-			const y = Number(match[2]);
+			const x = Number(match[1]) - 1;
+			const y = Number(match[2]) - 1;
 			if (e.ctrlKey || e.metaKey) {
 				if (focus.has(`${x},${y}`)) {
 					focus.delete(`${x},${y}`)
@@ -620,6 +599,10 @@ document.addEventListener("click", e => {
 	focus.clear()
 });
 document.addEventListener("keydown", e => {
+	const t = e.target;
+	if (t instanceof HTMLInputElement || t instanceof HTMLTextAreaElement || t?.isContentEditable) {
+		return
+	}
 	if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
 		e.preventDefault();
 		if (!prev.length) {
@@ -638,26 +621,26 @@ document.addEventListener("keydown", e => {
 				display()
 			}
 		}
-	} else if (e.key.startsWith("Arrow") && focus.size >= 0) {
+	} else if (e.key.startsWith("Arrow") && focus.size > 0) {
 		e.preventDefault();
 		const oldFocus = new Set(focus);
 		focus.clear();
 		for (const pos of oldFocus) {
 			let [x, y] = pos.split(",").map(Number);
 			if (e.key === "ArrowUp") {
-				if (x > 1) {
+				if (x > 0) {
 					x--
 				}
 			} else if (e.key === "ArrowDown") {
-				if (x < 9) {
+				if (x < 8) {
 					x++
 				}
 			} else if (e.key === "ArrowLeft") {
-				if (y > 1) {
+				if (y > 0) {
 					y--
 				}
 			} else {
-				if (y < 9) {
+				if (y < 8) {
 					y++
 				}
 			}
@@ -667,20 +650,20 @@ document.addEventListener("keydown", e => {
 		setFocus()
 	} else if (!e.repeat && focus.size > 0) {
 		if (/^[1-9]$/.test(e.key)) {
-			const num = Number(e.key);
+			const num = Number(e.key) - 1;
 			for (const pos of focus) {
 				const [x, y] = pos.split(",").map(Number);
-				if (grid[x - 1][y - 1].type === "guess" ? !grid[x - 1][y - 1].value[num - 1] : !posOk(x, y, num)) {
+				if (grid[x][y].isNumber) {
 					continue
 				}
-				if (grid[x - 1][y - 1].type !== "guess") {
-					addGuess(x, y)
+				if (!grid[x][y].value[num]) {
+					continue
 				}
-				grid[x - 1][y - 1] = {
-					type: "number",
+				grid[x][y] = {
+					isNumber: true,
 					value: num
 				};
-				removeGuess([`${x-1},${y-1}`])
+				removeGuess([`${x},${y}`])
 			}
 			autoSolve();
 			setHistory();
@@ -688,11 +671,11 @@ document.addEventListener("keydown", e => {
 		} else if (e.key === "Backspace" || e.key === "Delete") {
 			for (const pos of focus) {
 				const [x, y] = pos.split(",").map(Number);
-				if (grid[x - 1][y - 1].type !== "guess") {
+				if (grid[x][y].isNumber) {
 					addGuess(x, y)
 				}
-				grid[x - 1][y - 1] = {
-					type: "guess",
+				grid[x][y] = {
+					isNumber: false,
 					value: Array(9).fill(true)
 				}
 			}

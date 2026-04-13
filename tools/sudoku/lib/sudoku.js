@@ -77,48 +77,24 @@ function getPositions(i, j) {
 
 function removeGuess(needUpdate) {
 	let updated = false;
-	needUpdate = needUpdate ? new Set(needUpdate) : new Set(Array.from({
+	needUpdate = needUpdate ? [...new Set(needUpdate)] : Array.from({
 		length: 9
 	}, (_, i) => Array.from({
 		length: 9
-	}, (_, j) => `${i},${j}`)).flat());
-	while (needUpdate.size > 0) {
-		const update = needUpdate.values().next().value;
-		needUpdate.delete(update);
+	}, (_, j) => `${i},${j}`)).flat();
+	needUpdate.forEach(update => {
 		const [i, j] = update.split(",").map(Number);
 		const boxValue = grid[i][j];
 		if (boxValue.type === "guess") {
-			continue
+			return
 		}
-		const positions = new Set;
-		for (let y = 0; y < 9; y++) {
-			if (y !== j) {
-				positions.add(`${i},${y}`)
-			}
-		}
-		for (let x = 0; x < 9; x++) {
-			if (x !== i) {
-				positions.add(`${x},${j}`)
-			}
-		}
-		const blockRow = Math.floor(i / 3) * 3;
-		const blockCol = Math.floor(j / 3) * 3;
-		for (let x = blockRow; x < blockRow + 3; x++) {
-			for (let y = blockCol; y < blockCol + 3; y++) {
-				if (x === i && y === j) {
-					continue
-				}
-				positions.add(`${x},${y}`)
-			}
-		}
-		Array.from(positions).map(s => s.split(",").map(Number)).forEach(([x, y]) => {
+		getPositions(i, j).forEach(([x, y]) => {
 			if (grid[x][y].type === "guess" && grid[x][y].value[boxValue.value - 1]) {
 				updated = true;
-				grid[x][y].value[boxValue.value - 1] = false;
-				needUpdate.add(`${x},${y}`)
+				grid[x][y].value[boxValue.value - 1] = false
 			}
 		})
-	}
+	});
 	return updated
 }
 
@@ -148,7 +124,6 @@ function solveNakedSingleAndSubset() {
 			const filt = toNumbered[i][j];
 			if (solveSingle && filt.length === 1) {
 				nakedSingle.push([i, j, filt[0]]);
-				updated = true;
 				needUpdate.push(`${i},${j}`)
 			} else if (solveSubset && filt.length <= 4) {
 				const blockNumber = Math.floor(i / 3) * 3 + Math.floor(j / 3);
@@ -189,7 +164,6 @@ function solveNakedSingleAndSubset() {
 									}
 								});
 								if (upd) {
-									updated = true;
 									needUpdate.push(`${i},${j}`)
 								}
 							}
@@ -216,7 +190,6 @@ function solveNakedSingleAndSubset() {
 									}
 								});
 								if (upd) {
-									updated = true;
 									needUpdate.push(`${i},${j}`)
 								}
 							}
@@ -246,7 +219,6 @@ function solveNakedSingleAndSubset() {
 										}
 									});
 									if (upd) {
-										updated = true;
 										needUpdate.push(`${i},${j}`)
 									}
 								}
@@ -257,7 +229,8 @@ function solveNakedSingleAndSubset() {
 			}
 		});
 		if (needUpdate.length) {
-			removeGuess(needUpdate)
+			removeGuess(needUpdate);
+			updated = true
 		}
 	} while (needUpdate.length > 0);
 	return updated
@@ -298,7 +271,6 @@ function solveHiddenSingle() {
 		}));
 		rows.forEach(row => row.forEach((rowPositions, value) => {
 			if (rowPositions.length === 1 && grid[rowPositions[0][0]][rowPositions[0][1]].type === "guess") {
-				updated = true;
 				grid[rowPositions[0][0]][rowPositions[0][1]].type = "number";
 				grid[rowPositions[0][0]][rowPositions[0][1]].value = value + 1;
 				needUpdate.push(`${rowPositions[0][0]},${rowPositions[0][1]}`)
@@ -306,7 +278,6 @@ function solveHiddenSingle() {
 		}));
 		cols.forEach(col => col.forEach((colPositions, value) => {
 			if (colPositions.length === 1 && grid[colPositions[0][0]][colPositions[0][1]].type === "guess") {
-				updated = true;
 				grid[colPositions[0][0]][colPositions[0][1]].type = "number";
 				grid[colPositions[0][0]][colPositions[0][1]].value = value + 1;
 				needUpdate.push(`${colPositions[0][0]},${colPositions[0][1]}`)
@@ -314,14 +285,14 @@ function solveHiddenSingle() {
 		}));
 		blocks.forEach(block => block.forEach((blockPositions, value) => {
 			if (blockPositions.length === 1 && grid[blockPositions[0][0]][blockPositions[0][1]].type === "guess") {
-				updated = true;
 				grid[blockPositions[0][0]][blockPositions[0][1]].type = "number";
 				grid[blockPositions[0][0]][blockPositions[0][1]].value = value + 1;
 				needUpdate.push(`${blockPositions[0][0]},${blockPositions[0][1]}`)
 			}
 		}));
 		if (needUpdate.length > 0) {
-			removeGuess(needUpdate)
+			removeGuess(needUpdate);
+			updated = true
 		}
 	} while (needUpdate.length > 0);
 	return updated
@@ -368,7 +339,7 @@ function solvePointingNumbers() {
 						}
 						if (grid[row][col].type === "guess" && grid[row][col].value[number]) {
 							grid[row][col].value[number] = false;
-							thisUpdated = updated = true
+							thisUpdated = true
 						}
 					}
 				}
@@ -385,12 +356,15 @@ function solvePointingNumbers() {
 						}
 						if (grid[row][col].type === "guess" && grid[row][col].value[number]) {
 							grid[row][col].value[number] = false;
-							thisUpdated = updated = true
+							thisUpdated = true
 						}
 					}
 				}
 			})
-		})
+		});
+		if (thisUpdated) {
+			updated = true
+		}
 	} while (thisUpdated);
 	return updated
 }
@@ -599,7 +573,7 @@ autoSolveHiddenSingleEle.addEventListener("change", () => {
 	}
 });
 autoSolvePointingNumbersEle.addEventListener("change", () => {
-	autoSolveHiddenSingle = autoSolvePointingNumbersEle.checked;
+	autoSolvePointingNumbers = autoSolvePointingNumbersEle.checked;
 	window.localStorage.setItem("sudoku-solver-auto-solve-pointing-numbers", autoSolvePointingNumbers);
 	if (autoSolvePointingNumbers) {
 		autoSolve();

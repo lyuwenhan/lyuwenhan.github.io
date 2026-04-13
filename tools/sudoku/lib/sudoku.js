@@ -5,11 +5,11 @@ const autoSolveNakedSingleEle = document.getElementById("auto-solve-naked-single
 const autoSolveNakedSubsetEle = document.getElementById("auto-solve-naked-subset");
 const autoSolveHiddenSingleEle = document.getElementById("auto-solve-hidden-single");
 const multipleAnswerCheckEle = document.getElementById("multiple-answer-check");
-let autoSolveNakedSingle = window.localStorage.getItem("sudoku-solver-auto-solve-naked-single") === "true";
+let autoSolveNakedSingle = window.localStorage.getItem("sudoku-solver-auto-solve-naked-single") !== "false";
 autoSolveNakedSingleEle.checked = autoSolveNakedSingle;
-let autoSolveNakedSubset = window.localStorage.getItem("sudoku-solver-auto-solve-naked-subset") === "true";
+let autoSolveNakedSubset = window.localStorage.getItem("sudoku-solver-auto-solve-naked-subset") !== "false";
 autoSolveNakedSubsetEle.checked = autoSolveNakedSubset;
-let autoSolveHiddenSingle = window.localStorage.getItem("sudoku-solver-auto-solve-hidden-single") === "true";
+let autoSolveHiddenSingle = window.localStorage.getItem("sudoku-solver-auto-solve-hidden-single") !== "false";
 autoSolveHiddenSingleEle.checked = autoSolveHiddenSingle;
 let multipleAnswerCheck = window.localStorage.getItem("sudoku-solver-multiple-answer-check") !== "false";
 multipleAnswerCheckEle.checked = multipleAnswerCheck;

@@ -616,7 +616,7 @@ document.addEventListener("keydown", e => {
 			const num = Number(e.key);
 			for (const pos of focus) {
 				const [x, y] = pos.split(",").map(Number);
-				if (grid[x - 1][y - 1].type === "guess" && !grid[x - 1][y - 1].value[num - 1]) {
+				if (grid[x - 1][y - 1].type === "guess" ? !grid[x - 1][y - 1].value[num - 1] : !posOk(x, y, num)) {
 					continue
 				}
 				if (grid[x - 1][y - 1].type !== "guess") {

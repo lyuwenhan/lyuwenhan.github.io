@@ -53,8 +53,6 @@ async function handleFile(file) {
 		setH.value = realHeight = imgHeight = currentImage.naturalHeight;
 		render();
 		prev.hidden = false;
-		btnDownload.disabled = false;
-		btnCopy.disabled = false;
 		drop.innerText = "Loaded: " + file.name + "\nDrag image, click, or paste to upload new one"
 	} catch {
 		alert("Failed to load image.")
@@ -128,8 +126,6 @@ async function handleUrl(url) {
 		setH.value = realHeight = imgHeight = currentImage.naturalHeight;
 		render();
 		prev.hidden = false;
-		btnDownload.disabled = false;
-		btnCopy.disabled = false;
 		drop.innerText = "Loaded: Image by url\nDrag image, click, or paste to upload new one"
 	} catch {
 		alert("Failed to load image.")

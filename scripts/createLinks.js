@@ -7,35 +7,36 @@ function createLinks(data, path, ext) {
 	const document = dom.window.document;
 	const linksEle = document.createElement("div");
 	Object.entries(data).filter(e => e[0] && e[0] !== "data").forEach(e => {
-		const ele = document.createElement("details");
+		const ele = document.createElement("div");
 		ele.id = "links-" + e[0];
 		ele.classList.add("linksEle");
-		const sumEle = document.createElement("summary");
-		const nameEle = document.createElement("h3");
-		nameEle.textContent = e[1].displayName ?? e[0];
-		nameEle.classList.add("extension-name");
-		sumEle.append(nameEle);
-		ele.append(sumEle);
-		if (e[1].description) {
-			const descEle = document.createElement("span");
-			descEle.textContent = e[1].description;
-			ele.append(descEle);
-			ele.append(document.createElement("br"))
-		}
+		ele.classList.add("extensionsCard");
+		ele.classList.add("verticalContainer");
+		const headerEle = document.createElement("div");
+		headerEle.classList.add("horizontalContainer");
 		if (e[1].hasIcon) {
 			const imgEle = document.createElement("img");
 			imgEle.classList.add("imgPreview");
 			imgEle.src = `/extensions/${path}/data/assets/${e[0]}/icon.png`;
-			ele.append(imgEle);
-			ele.append(document.createElement("br"))
+			headerEle.append(imgEle)
 		}
+		const descriptionsEle = document.createElement("div");
+		descriptionsEle.classList.add("verticalContainer");
+		const nameEle = document.createElement("h3");
+		nameEle.textContent = e[1].displayName ?? e[0];
+		nameEle.classList.add("extension-name");
+		descriptionsEle.append(nameEle);
+		const descEle = document.createElement("span");
+		descEle.textContent = e[1].description;
+		descriptionsEle.append(descEle);
+		headerEle.append(descriptionsEle);
+		ele.append(headerEle);
 		const fullDescEle = document.createElement("a");
 		fullDescEle.href = `/extensions/${path}/data/assets/${e[0]}/README/README.html`;
 		fullDescEle.textContent = `Full description`;
 		fullDescEle.target = "_blank";
 		fullDescEle.classList.add("bt");
 		ele.append(fullDescEle);
-		ele.append(document.createElement("br"));
 		if (e[1].link) {
 			Object.entries(e[1].link).forEach(([site, href]) => {
 				const linkEle = document.createElement("a");
@@ -43,8 +44,7 @@ function createLinks(data, path, ext) {
 				linkEle.textContent = `View on ${site}`;
 				linkEle.target = "_blank";
 				linkEle.classList.add("bt");
-				ele.append(linkEle);
-				ele.append(document.createElement("br"))
+				ele.append(linkEle)
 			})
 		}
 		if (e[1].version) {

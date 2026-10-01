@@ -152,8 +152,9 @@ td, th {
 	border: 1px solid #000;
 	padding: 6px
 }
-summary > h1, summary > h2, summary > h3, summary > h4, summary > h5, summary > h6 {
-	display: inline
+:is(summary, .horizontalContainer, .verticalContainer) > :is(h1, h2, h3, h4, h5, h6) {
+	display: inline;
+	margin: 0
 }
 .lisum {
 	list-style-type: none
@@ -168,7 +169,7 @@ summary > h1, summary > h2, summary > h3, summary > h4, summary > h5, summary > 
 	background-color: #f2f2f2;
 	border: 1px solid #000;
 	border-radius: 5px;
-	width: 100px
+	height: 100px
 }
 .imgPreview:hover {
 	background-color: #d9d9d9
@@ -185,4 +186,20 @@ button:hover {
 }
 button:active {
 	background-color: #f5f5f5
+}
+.horizontalContainer, .verticalContainer {
+	display: flex;
+	gap: 16px
+}
+.verticalContainer {
+	flex-direction: column
+}
+.extensionsCard {
+	border: 1px solid #000;
+	border-radius: 10px;
+	margin: 20px;
+	padding: 20px
+}
+.main a {
+	width: max-content
 }

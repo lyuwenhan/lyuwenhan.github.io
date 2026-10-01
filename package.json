@@ -4,7 +4,8 @@
 	"description": "This is my personal homepage, hosted on GitHub Pages. It showcases various projects I've developed, including games, tools, and extensions.",
 	"type": "commonjs",
 	"scripts": {
-		"dev": "npm install && node scripts/dev.js"
+		"build": "node scripts/build.js",
+		"dev": "node scripts/build.js --watch"
 	},
 	"license": "MIT",
 	"dependencies": {

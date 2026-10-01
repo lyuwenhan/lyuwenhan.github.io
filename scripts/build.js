@@ -1,21 +1,20 @@
 const fs = require("fs");
 const fsp = fs.promises;
 const path = require("path");
-const {
-	spawn
-} = require("child_process");
+const mdConverter = require("./mdConverter");
+const createLinks = require("./createLinks");
 const ROOT = path.resolve(__dirname, "..");
 const DIST = path.join(ROOT, "dist");
 const PAGES = path.join(DIST, "pages");
 const CACHE = path.join(DIST, ".cache");
 const PORT = 5670;
+const WATCH = process.argv.includes("--watch");
 let isProcessing = false;
 let hasUpdate = false;
 let isMoving = false;
 let activeReads = 0;
 let moveWaiters = [];
 let readDrainWaiters = [];
-let currentBuildChild = null;
 class BuildInterruptedError extends Error {
 	constructor() {
 		super("Build interrupted by source update");
@@ -28,49 +27,12 @@ function throwIfUpdated() {
 		throw new BuildInterruptedError
 	}
 }
-
-function interruptBuild() {
-	if (currentBuildChild && !currentBuildChild.killed) {
-		currentBuildChild.kill()
-	}
-}
-
-function run(command, args, options = {}) {
-	return new Promise((resolve, reject) => {
-		const child = spawn(command, args, {
-			stdio: "inherit",
-			...options
-		});
-		currentBuildChild = child;
-
-		function clearChild() {
-			if (currentBuildChild === child) {
-				currentBuildChild = null
-			}
-		}
-		child.once("error", error => {
-			clearChild();
-			if (hasUpdate) {
-				reject(new BuildInterruptedError);
-				return
-			}
-			reject(error)
-		});
-		child.once("exit", (code, signal) => {
-			clearChild();
-			if (hasUpdate) {
-				reject(new BuildInterruptedError);
-				return
-			}
-			if (code === 0) {
-				resolve()
-			} else if (signal) {
-				reject(new Error(`${command} terminated by signal ${signal}`))
-			} else {
-				reject(new Error(`${command} exited with code ${code}`))
-			}
-		})
-	})
+async function checkpoint() {
+	throwIfUpdated();
+	await new Promise(resolve => {
+		setImmediate(resolve)
+	});
+	throwIfUpdated()
 }
 
 function registerExitHandlers() {
@@ -137,54 +99,203 @@ function endMove() {
 		resolve()
 	}
 }
+async function exists(p) {
+	try {
+		await fsp.access(p);
+		return true
+	} catch {
+		return false
+	}
+}
 async function copySource(target) {
 	const entries = await fsp.readdir(ROOT, {
 		withFileTypes: true
 	});
-	throwIfUpdated();
+	await checkpoint();
 	for (const entry of entries) {
 		if (entry.name === "dist" || entry.name === ".git" || entry.name === "node_modules") {
 			continue
 		}
-		throwIfUpdated();
+		await checkpoint();
 		const source = path.join(ROOT, entry.name);
 		const destination = path.join(target, entry.name);
 		await fsp.cp(source, destination, {
 			recursive: true
 		});
-		throwIfUpdated()
+		await checkpoint()
 	}
+}
+
+function replaceNav(s, nav) {
+	return s.replace(/(<div\s+id="nav"[^>]*>)[\s\S]*?(<\/div>)/g, `$1\n${nav}\n$2`)
+}
+
+function replaceTemplate(s, options) {
+	const {
+		title,
+		head,
+		content,
+		body,
+		source,
+		back
+	} = {
+		title: "",
+		head: "",
+		content: "",
+		body: "",
+		source: "",
+		back: "..",
+		...options
+	};
+	return s.replace("@title", title).replace("\x3c!-- @head --\x3e", head).replace("\x3c!-- @content --\x3e", `<a href="${back}" class="bt">Back</a><br>\n` + (source ? `<a href="${source}" class="bt" target="_blank">Source file</a><br>\n` : "") + content).replace("\x3c!-- @body --\x3e", body)
+}
+async function buildPages() {
+	await checkpoint();
+	const nav = await fsp.readFile(path.join(CACHE, "nav.html"), "utf8");
+	await checkpoint();
+	const template = replaceNav(await fsp.readFile(path.join(CACHE, "template", "template.html"), "utf8"), nav);
+	await checkpoint();
+	const markdown_js = replaceNav(await fsp.readFile(path.join(CACHE, "template", "markdown.js.html"), "utf8"), nav);
+	await checkpoint();
+	const markdown_css = replaceNav(await fsp.readFile(path.join(CACHE, "template", "markdown.css.html"), "utf8"), nav);
+	await checkpoint();
+	const action = {
+		".html": async p => {
+			await checkpoint();
+			const absolutePath = path.join(CACHE, p);
+			let s = await fsp.readFile(absolutePath, "utf8");
+			await checkpoint();
+			s = replaceNav(s, nav);
+			await fsp.writeFile(absolutePath, s);
+			await checkpoint()
+		},
+		".md": async p => {
+			await checkpoint();
+			const absolutePath = path.join(CACHE, p);
+			let s = await fsp.readFile(absolutePath, "utf8");
+			await checkpoint();
+			const dir = path.dirname(p);
+			const base = path.basename(p, ".md");
+			let out = [path.join(dir, base + ".html")];
+			if (base === "README") {
+				out.push(path.join(dir, "index.html"))
+			}
+			const filtered = [];
+			for (const output of out) {
+				await checkpoint();
+				if (!await exists(path.join(CACHE, output))) {
+					filtered.push(output)
+				}
+			}
+			out = filtered;
+			if (!out.length) {
+				return
+			}
+			await checkpoint();
+			s = replaceTemplate(template, {
+				title: base.replace(/_/g, " "),
+				head: markdown_js + markdown_css,
+				content: mdConverter(s),
+				body: "",
+				source: "/" + p,
+				back: /^\extensions\/[a-zA-Z\d_\-]+\/data\//.test(p) ? p.replace(/^(\extensions\/[a-zA-Z\d_\-]+)\/.*$/, "/$1") : ".."
+			});
+			await checkpoint();
+			for (const output of out) {
+				await checkpoint();
+				await fsp.writeFile(path.join(CACHE, output), s);
+				await checkpoint()
+			}
+		}
+	};
+	async function walk(dir) {
+		await checkpoint();
+		const entries = await fsp.readdir(path.join(CACHE, dir), {
+			withFileTypes: true
+		});
+		await checkpoint();
+		for (const entry of entries) {
+			await checkpoint();
+			const p = path.join(dir, entry.name);
+			if (entry.isDirectory()) {
+				await walk(p)
+			} else if (entry.isFile()) {
+				const ext = path.extname(p);
+				const handler = action[ext];
+				if (handler) {
+					await handler(p)
+				}
+			}
+		}
+	}
+	await fsp.copyFile(path.join(CACHE, "LICENSE"), path.join(CACHE, "LICENSE.txt"));
+	await checkpoint();
+	const extensionsPath = path.join(CACHE, "extensions");
+	const extensions = await fsp.readdir(extensionsPath, {
+		withFileTypes: true
+	});
+	await checkpoint();
+	for (const entry of extensions) {
+		await checkpoint();
+		if (!entry.isDirectory()) {
+			continue
+		}
+		const htmlPath = path.join("extensions", entry.name, "index.html");
+		const dataPath = path.join("extensions", entry.name, "data", "versions.json");
+		const absoluteHtmlPath = path.join(CACHE, htmlPath);
+		const absoluteDataPath = path.join(CACHE, dataPath);
+		if (!await exists(absoluteHtmlPath) || !await exists(absoluteDataPath)) {
+			continue
+		}
+		await checkpoint();
+		const content = await fsp.readFile(absoluteHtmlPath, "utf8");
+		await checkpoint();
+		const data = JSON.parse(await fsp.readFile(absoluteDataPath, "utf8"));
+		await checkpoint();
+		await fsp.writeFile(absoluteHtmlPath, content.replace("\x3c!-- @links --\x3e", createLinks(data, entry.name, data.data?.ext || "zip")));
+		await checkpoint()
+	}
+	await walk(".")
+}
+async function cleanupOutput(target) {
+	const entries = [".github", "nav.html", "template", "node_modules", "package.json", "package-lock.json", ".gitignore", "dist"];
+	for (const entry of entries) {
+		await checkpoint();
+		await fsp.rm(path.join(target, entry), {
+			recursive: true,
+			force: true
+		})
+	}
+	await checkpoint()
 }
 async function buildToCache() {
 	console.log(`Building ${path.relative(ROOT,CACHE)}`);
-	throwIfUpdated();
+	await checkpoint();
 	await fsp.rm(CACHE, {
 		recursive: true,
 		force: true
 	});
-	throwIfUpdated();
+	await checkpoint();
 	await fsp.mkdir(CACHE, {
 		recursive: true
 	});
-	throwIfUpdated();
+	await checkpoint();
 	await copySource(CACHE);
-	throwIfUpdated();
-	await run(process.execPath, ["scripts/index.js"], {
-		cwd: CACHE
-	});
-	throwIfUpdated();
+	await checkpoint();
+	await buildPages();
+	await checkpoint();
+	await cleanupOutput(CACHE);
+	await checkpoint();
 	console.log(`Built ${path.relative(ROOT,CACHE)}`)
 }
 async function publishCache() {
 	throwIfUpdated();
 	await beginMove();
 	try {
-		throwIfUpdated();
 		await fsp.rm(PAGES, {
 			recursive: true,
 			force: true
 		});
-		throwIfUpdated();
 		await fsp.rename(CACHE, PAGES);
 		console.log(`Published ${path.relative(ROOT,PAGES)}`)
 	} finally {
@@ -194,7 +305,6 @@ async function publishCache() {
 async function processUpdate() {
 	if (isProcessing) {
 		hasUpdate = true;
-		interruptBuild();
 		return
 	}
 	isProcessing = true;
@@ -244,7 +354,6 @@ function sourceChanged(filename) {
 			console.log("Interrupting current build...")
 		}
 		hasUpdate = true;
-		interruptBuild();
 		return
 	}
 	clearTimeout(changeTimer);
@@ -311,6 +420,9 @@ async function main() {
 	});
 	await buildToCache();
 	await publishCache();
+	if (!WATCH) {
+		return
+	}
 	startServer();
 	startWatcher()
 }

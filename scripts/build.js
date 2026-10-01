@@ -9,6 +9,8 @@ const PAGES = path.join(DIST, "pages");
 const CACHE = path.join(DIST, ".cache");
 const PORT = 5670;
 const WATCH = process.argv.includes("--watch");
+const COPY_EXCLUDES = new Set([".github", ".git", ".gitignore", ".vscode", "dist", "node_modules", "package.json", "package-lock.json"]);
+const OUTPUT_CLEANUP = ["nav.html", "template"];
 let isProcessing = false;
 let hasUpdate = false;
 let isMoving = false;
@@ -113,7 +115,7 @@ async function copySource(target) {
 	});
 	await checkpoint();
 	for (const entry of entries) {
-		if (entry.name === "dist" || entry.name === ".git" || entry.name === "node_modules") {
+		if (COPY_EXCLUDES.has(entry.name)) {
 			continue
 		}
 		await checkpoint();
@@ -137,7 +139,9 @@ function replaceTemplate(s, options) {
 		content,
 		body,
 		source,
-		back
+		back,
+		mainClass,
+		backBreak
 	} = {
 		title: "",
 		head: "",
@@ -145,9 +149,123 @@ function replaceTemplate(s, options) {
 		body: "",
 		source: "",
 		back: "..",
+		mainClass: "",
+		backBreak: true,
 		...options
 	};
-	return s.replace("@title", title).replace("\x3c!-- @head --\x3e", head).replace("\x3c!-- @content --\x3e", `<a href="${back}" class="bt">Back</a><br>\n` + (source ? `<a href="${source}" class="bt" target="_blank">Source file</a><br>\n` : "") + content).replace("\x3c!-- @body --\x3e", body)
+	const mainClassText = mainClass ? " " + mainClass : "";
+	const backBreakText = backBreak ? "<br>\n" : "\n";
+	return s.replace("@title", title).replace(" @mainClass", mainClassText).replace("\x3c!-- @head --\x3e", head).replace("\x3c!-- @content --\x3e", `<a href="${back}" class="bt">Back</a>${backBreakText}` + (source ? `<a href="${source}" class="bt" target="_blank">Source file</a><br>\n` : "") + content).replace("\x3c!-- @body --\x3e", body)
+}
+async function movePath(source, destination) {
+	await checkpoint();
+	const sourceStat = await fsp.lstat(source);
+	if (sourceStat.isDirectory()) {
+		if (await exists(destination)) {
+			const destinationStat = await fsp.lstat(destination);
+			if (destinationStat.isDirectory()) {
+				const entries = await fsp.readdir(source, {
+					withFileTypes: true
+				});
+				for (const entry of entries) {
+					await movePath(path.join(source, entry.name), path.join(destination, entry.name))
+				}
+				await checkpoint();
+				await fsp.rmdir(source);
+				return
+			}
+			await fsp.rm(destination, {
+				recursive: true,
+				force: true
+			})
+		} else {
+			await fsp.mkdir(path.dirname(destination), {
+				recursive: true
+			})
+		}
+		await checkpoint();
+		await fsp.rename(source, destination);
+		return
+	}
+	await fsp.mkdir(path.dirname(destination), {
+		recursive: true
+	});
+	await fsp.rm(destination, {
+		recursive: true,
+		force: true
+	});
+	await checkpoint();
+	await fsp.rename(source, destination)
+}
+async function moveExtensionData(extensionPath) {
+	await checkpoint();
+	const dataPath = path.join(extensionPath, "data");
+	if (!await exists(dataPath)) {
+		return
+	}
+	const assetsPath = path.join(dataPath, "assets");
+	if (await exists(assetsPath)) {
+		const assetEntries = await fsp.readdir(assetsPath, {
+			withFileTypes: true
+		});
+		for (const entry of assetEntries) {
+			await movePath(path.join(assetsPath, entry.name), path.join(extensionPath, entry.name))
+		}
+	}
+	const dataEntries = await fsp.readdir(dataPath, {
+		withFileTypes: true
+	});
+	for (const entry of dataEntries) {
+		if (entry.name === "assets") {
+			continue
+		}
+		await movePath(path.join(dataPath, entry.name), path.join(extensionPath, entry.name))
+	}
+	await checkpoint();
+	await fsp.rm(dataPath, {
+		recursive: true,
+		force: true
+	})
+}
+async function createAssetIndexPages(template, markdownHead, extensionName, data, ext) {
+	await checkpoint();
+	const assetsPath = path.join(CACHE, "extensions", extensionName, "data", "assets");
+	if (!await exists(assetsPath)) {
+		return
+	}
+	for (const [name, value] of Object.entries(data)) {
+		await checkpoint();
+		if (!name || name === "data") {
+			continue
+		}
+		const assetPath = path.join(assetsPath, name);
+		if (!await exists(assetPath)) {
+			continue
+		}
+		const content = createLinks.createLink(data, extensionName, name, ext);
+		if (!content) {
+			continue
+		}
+		let readmeContent = "";
+		const readmePath = path.join(assetPath, "README", "README.md");
+		if (await exists(readmePath)) {
+			await checkpoint();
+			readmeContent = `<div class="extensionDescription">${mdConverter(await fsp.readFile(readmePath,"utf8"))}</div>`
+		}
+		const page = replaceTemplate(template, {
+			title: value.displayName ?? name,
+			head: readmeContent ? markdownHead : "",
+			content: content + readmeContent,
+			body: "",
+			source: "",
+			back: "..",
+			mainClass: "verticalContainer",
+			backBreak: false
+		});
+		await checkpoint();
+		await fsp.writeFile(path.join(assetPath, "index.html"), page);
+		await checkpoint()
+	}
 }
 async function buildPages() {
 	await checkpoint();
@@ -155,9 +273,9 @@ async function buildPages() {
 	await checkpoint();
 	const template = replaceNav(await fsp.readFile(path.join(CACHE, "template", "template.html"), "utf8"), nav);
 	await checkpoint();
-	const markdown_js = replaceNav(await fsp.readFile(path.join(CACHE, "template", "markdown.js.html"), "utf8"), nav);
+	const markdown_js = await fsp.readFile(path.join(CACHE, "template", "markdown.js.html"), "utf8");
 	await checkpoint();
-	const markdown_css = replaceNav(await fsp.readFile(path.join(CACHE, "template", "markdown.css.html"), "utf8"), nav);
+	const markdown_css = await fsp.readFile(path.join(CACHE, "template", "markdown.css.html"), "utf8");
 	await checkpoint();
 	const action = {
 		".html": async p => {
@@ -176,19 +294,21 @@ async function buildPages() {
 			await checkpoint();
 			const dir = path.dirname(p);
 			const base = path.basename(p, ".md");
-			let out = [path.join(dir, base + ".html")];
+			const pagePath = p.split(path.sep).join("/");
+			const discardSource = /^extensions\/[^/]+\/data\/assets\/.*\/README\//.test(pagePath);
+			let outputs = [path.join(CACHE, dir, base + ".html")];
 			if (base === "README") {
-				out.push(path.join(dir, "index.html"))
+				outputs.push(path.join(CACHE, dir, "index.html"))
 			}
 			const filtered = [];
-			for (const output of out) {
+			for (const output of outputs) {
 				await checkpoint();
-				if (!await exists(path.join(CACHE, output))) {
+				if (!await exists(output)) {
 					filtered.push(output)
 				}
 			}
-			out = filtered;
-			if (!out.length) {
+			outputs = filtered;
+			if (!outputs.length) {
 				return
 			}
 			await checkpoint();
@@ -197,13 +317,13 @@ async function buildPages() {
 				head: markdown_js + markdown_css,
 				content: mdConverter(s),
 				body: "",
-				source: "/" + p,
-				back: /^\extensions\/[a-zA-Z\d_\-]+\/data\//.test(p) ? p.replace(/^(\extensions\/[a-zA-Z\d_\-]+)\/.*$/, "/$1") : ".."
+				source: discardSource ? "" : "/" + pagePath,
+				back: ".."
 			});
 			await checkpoint();
-			for (const output of out) {
+			for (const output of outputs) {
 				await checkpoint();
-				await fsp.writeFile(path.join(CACHE, output), s);
+				await fsp.writeFile(output, s);
 				await checkpoint()
 			}
 		}
@@ -252,14 +372,22 @@ async function buildPages() {
 		await checkpoint();
 		const data = JSON.parse(await fsp.readFile(absoluteDataPath, "utf8"));
 		await checkpoint();
-		await fsp.writeFile(absoluteHtmlPath, content.replace("\x3c!-- @links --\x3e", createLinks(data, entry.name, data.data?.ext || "zip")));
+		const ext = data.data?.ext || "zip";
+		await fsp.writeFile(absoluteHtmlPath, content.replace("\x3c!-- @links --\x3e", createLinks(data, entry.name, ext)));
+		await checkpoint();
+		await createAssetIndexPages(template, markdown_js + markdown_css, entry.name, data, ext);
 		await checkpoint()
 	}
-	await walk(".")
+	await walk(".");
+	for (const entry of extensions) {
+		await checkpoint();
+		if (entry.isDirectory()) {
+			await moveExtensionData(path.join(extensionsPath, entry.name))
+		}
+	}
 }
 async function cleanupOutput(target) {
-	const entries = [".github", "nav.html", "template", "node_modules", "package.json", "package-lock.json", ".gitignore", "dist"];
-	for (const entry of entries) {
+	for (const entry of OUTPUT_CLEANUP) {
 		await checkpoint();
 		await fsp.rm(path.join(target, entry), {
 			recursive: true,

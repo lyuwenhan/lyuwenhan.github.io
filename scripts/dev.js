@@ -16,6 +16,25 @@ let activeReads = 0;
 let cleanupStarted = false;
 let moveWaiters = [];
 let readDrainWaiters = [];
+let currentBuildChild = null;
+class BuildInterruptedError extends Error {
+	constructor() {
+		super("Build interrupted by source update");
+		this.name = "BuildInterruptedError"
+	}
+}
+
+function throwIfUpdated() {
+	if (hasUpdate) {
+		throw new BuildInterruptedError
+	}
+}
+
+function interruptBuild() {
+	if (currentBuildChild && !currentBuildChild.killed) {
+		currentBuildChild.kill()
+	}
+}
 
 function run(command, args, options = {}) {
 	return new Promise((resolve, reject) => {
@@ -23,10 +42,31 @@ function run(command, args, options = {}) {
 			stdio: "inherit",
 			...options
 		});
-		child.once("error", reject);
-		child.once("exit", code => {
+		currentBuildChild = child;
+
+		function clearChild() {
+			if (currentBuildChild === child) {
+				currentBuildChild = null
+			}
+		}
+		child.once("error", error => {
+			clearChild();
+			if (hasUpdate) {
+				reject(new BuildInterruptedError);
+				return
+			}
+			reject(error)
+		});
+		child.once("exit", (code, signal) => {
+			clearChild();
+			if (hasUpdate) {
+				reject(new BuildInterruptedError);
+				return
+			}
 			if (code === 0) {
 				resolve()
+			} else if (signal) {
+				reject(new Error(`${command} terminated by signal ${signal}`))
 			} else {
 				reject(new Error(`${command} exited with code ${code}`))
 			}
@@ -126,39 +166,50 @@ async function copySource(target) {
 	const entries = await fsp.readdir(ROOT, {
 		withFileTypes: true
 	});
+	throwIfUpdated();
 	for (const entry of entries) {
 		if (entry.name === "dist" || entry.name === ".git" || entry.name === "node_modules") {
 			continue
 		}
+		throwIfUpdated();
 		const source = path.join(ROOT, entry.name);
 		const destination = path.join(target, entry.name);
 		await fsp.cp(source, destination, {
 			recursive: true
-		})
+		});
+		throwIfUpdated()
 	}
 }
 async function buildToCache() {
 	console.log(`Building ${path.relative(ROOT,CACHE)}`);
+	throwIfUpdated();
 	await fsp.rm(CACHE, {
 		recursive: true,
 		force: true
 	});
+	throwIfUpdated();
 	await fsp.mkdir(CACHE, {
 		recursive: true
 	});
+	throwIfUpdated();
 	await copySource(CACHE);
+	throwIfUpdated();
 	await run(process.execPath, ["scripts/index.js"], {
 		cwd: CACHE
 	});
+	throwIfUpdated();
 	console.log(`Built ${path.relative(ROOT,CACHE)}`)
 }
 async function publishCache() {
+	throwIfUpdated();
 	await beginMove();
 	try {
+		throwIfUpdated();
 		await fsp.rm(PAGES, {
 			recursive: true,
 			force: true
 		});
+		throwIfUpdated();
 		await fsp.rename(CACHE, PAGES);
 		console.log(`Published ${path.relative(ROOT,PAGES)}`)
 	} finally {
@@ -168,6 +219,7 @@ async function publishCache() {
 async function processUpdate() {
 	if (isProcessing) {
 		hasUpdate = true;
+		interruptBuild();
 		return
 	}
 	isProcessing = true;
@@ -176,16 +228,21 @@ async function processUpdate() {
 			hasUpdate = false;
 			try {
 				await buildToCache();
+				throwIfUpdated();
 				await publishCache()
 			} catch (error) {
-				console.error("Build failed:");
-				console.error(error);
-				try {
-					await fsp.rm(CACHE, {
-						recursive: true,
-						force: true
-					})
-				} catch {}
+				if (error instanceof BuildInterruptedError) {
+					console.log("Build interrupted, restarting...")
+				} else {
+					console.error("Build failed:");
+					console.error(error);
+					try {
+						await fsp.rm(CACHE, {
+							recursive: true,
+							force: true
+						})
+					} catch {}
+				}
 			}
 		} while (hasUpdate)
 	} finally {
@@ -206,14 +263,19 @@ function sourceChanged(filename) {
 	if (first === "dist" || first === ".git" || first === "node_modules") {
 		return
 	}
+	if (isProcessing) {
+		if (!hasUpdate) {
+			console.log(`Changed ${relative}`);
+			console.log("Interrupting current build...")
+		}
+		hasUpdate = true;
+		interruptBuild();
+		return
+	}
 	clearTimeout(changeTimer);
 	changeTimer = setTimeout(() => {
 		console.log(`Changed ${relative}`);
-		if (isProcessing) {
-			hasUpdate = true
-		} else {
-			processUpdate()
-		}
+		processUpdate()
 	}, 50)
 }
 

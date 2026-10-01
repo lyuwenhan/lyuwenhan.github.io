@@ -13,7 +13,6 @@ let isProcessing = false;
 let hasUpdate = false;
 let isMoving = false;
 let activeReads = 0;
-let cleanupStarted = false;
 let moveWaiters = [];
 let readDrainWaiters = [];
 let currentBuildChild = null;
@@ -73,25 +72,9 @@ function run(command, args, options = {}) {
 		})
 	})
 }
-async function cleanup() {
-	if (cleanupStarted) {
-		return
-	}
-	cleanupStarted = true;
-	console.log("Cleaning dist...");
-	try {
-		await fsp.rm(DIST, {
-			recursive: true,
-			force: true
-		})
-	} catch (error) {
-		console.error(error.message)
-	}
-}
 
 function registerExitHandlers() {
-	const exit = async code => {
-		await cleanup();
+	const exit = code => {
 		process.exit(code)
 	};
 	process.once("SIGINT", () => exit(0));
@@ -103,14 +86,6 @@ function registerExitHandlers() {
 	process.on("unhandledRejection", error => {
 		console.error(error);
 		exit(1)
-	});
-	process.once("exit", () => {
-		try {
-			fs.rmSync(DIST, {
-				recursive: true,
-				force: true
-			})
-		} catch {}
 	})
 }
 

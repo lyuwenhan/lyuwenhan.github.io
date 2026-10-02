@@ -113,7 +113,6 @@ async function copySource(target) {
 	const entries = await fsp.readdir(ROOT, {
 		withFileTypes: true
 	});
-	await checkpoint();
 	for (const entry of entries) {
 		if (COPY_EXCLUDES.has(entry.name)) {
 			continue
@@ -124,7 +123,6 @@ async function copySource(target) {
 		await fsp.cp(source, destination, {
 			recursive: true
 		});
-		await checkpoint()
 	}
 }
 
@@ -170,7 +168,6 @@ async function movePath(source, destination) {
 				for (const entry of entries) {
 					await movePath(path.join(source, entry.name), path.join(destination, entry.name))
 				}
-				await checkpoint();
 				await fsp.rmdir(source);
 				return
 			}
@@ -183,7 +180,6 @@ async function movePath(source, destination) {
 				recursive: true
 			})
 		}
-		await checkpoint();
 		await fsp.rename(source, destination);
 		return
 	}
@@ -194,7 +190,6 @@ async function movePath(source, destination) {
 		recursive: true,
 		force: true
 	});
-	await checkpoint();
 	await fsp.rename(source, destination)
 }
 async function moveExtensionData(extensionPath) {
@@ -221,14 +216,12 @@ async function moveExtensionData(extensionPath) {
 		}
 		await movePath(path.join(dataPath, entry.name), path.join(extensionPath, entry.name))
 	}
-	await checkpoint();
 	await fsp.rm(dataPath, {
 		recursive: true,
 		force: true
 	})
 }
 async function createAssetIndexPages(template, markdownHead, extensionName, data, ext) {
-	await checkpoint();
 	const assetsPath = path.join(CACHE, "extensions", extensionName, "data", "assets");
 	if (!await exists(assetsPath)) {
 		return
@@ -249,7 +242,6 @@ async function createAssetIndexPages(template, markdownHead, extensionName, data
 		let readmeContent = "";
 		const readmePath = path.join(assetPath, "README", "README.md");
 		if (await exists(readmePath)) {
-			await checkpoint();
 			readmeContent = `<div class="extensionDescription">${mdConverter(await fsp.readFile(readmePath,"utf8"))}</div>`
 		}
 		const page = replaceTemplate(template, {
@@ -262,36 +254,25 @@ async function createAssetIndexPages(template, markdownHead, extensionName, data
 			mainClass: "verticalContainer",
 			backBreak: false
 		});
-		await checkpoint();
 		await fsp.writeFile(path.join(assetPath, "index.html"), page);
-		await checkpoint()
 	}
 }
 async function buildPages() {
 	await checkpoint();
 	const nav = await fsp.readFile(path.join(CACHE, "nav.html"), "utf8");
-	await checkpoint();
 	const template = replaceNav(await fsp.readFile(path.join(CACHE, "template", "template.html"), "utf8"), nav);
-	await checkpoint();
 	const markdown_js = await fsp.readFile(path.join(CACHE, "template", "markdown.js.html"), "utf8");
-	await checkpoint();
 	const markdown_css = await fsp.readFile(path.join(CACHE, "template", "markdown.css.html"), "utf8");
-	await checkpoint();
 	const action = {
 		".html": async p => {
-			await checkpoint();
 			const absolutePath = path.join(CACHE, p);
 			let s = await fsp.readFile(absolutePath, "utf8");
-			await checkpoint();
 			s = replaceNav(s, nav);
 			await fsp.writeFile(absolutePath, s);
-			await checkpoint()
 		},
 		".md": async p => {
-			await checkpoint();
 			const absolutePath = path.join(CACHE, p);
 			let s = await fsp.readFile(absolutePath, "utf8");
-			await checkpoint();
 			const dir = path.dirname(p);
 			const base = path.basename(p, ".md");
 			const pagePath = p.split(path.sep).join("/");
@@ -302,7 +283,6 @@ async function buildPages() {
 			}
 			const filtered = [];
 			for (const output of outputs) {
-				await checkpoint();
 				if (!await exists(output)) {
 					filtered.push(output)
 				}
@@ -311,7 +291,6 @@ async function buildPages() {
 			if (!outputs.length) {
 				return
 			}
-			await checkpoint();
 			s = replaceTemplate(template, {
 				title: base.replace(/_/g, " "),
 				head: markdown_js + markdown_css,
@@ -320,11 +299,8 @@ async function buildPages() {
 				source: discardSource ? "" : "/" + pagePath,
 				back: ".."
 			});
-			await checkpoint();
 			for (const output of outputs) {
-				await checkpoint();
 				await fsp.writeFile(output, s);
-				await checkpoint()
 			}
 		}
 	};
@@ -333,9 +309,7 @@ async function buildPages() {
 		const entries = await fsp.readdir(path.join(CACHE, dir), {
 			withFileTypes: true
 		});
-		await checkpoint();
 		for (const entry of entries) {
-			await checkpoint();
 			const p = path.join(dir, entry.name);
 			if (entry.isDirectory()) {
 				await walk(p)
@@ -349,12 +323,10 @@ async function buildPages() {
 		}
 	}
 	await fsp.copyFile(path.join(CACHE, "LICENSE"), path.join(CACHE, "LICENSE.txt"));
-	await checkpoint();
 	const extensionsPath = path.join(CACHE, "extensions");
 	const extensions = await fsp.readdir(extensionsPath, {
 		withFileTypes: true
 	});
-	await checkpoint();
 	for (const entry of extensions) {
 		await checkpoint();
 		if (!entry.isDirectory()) {
@@ -367,34 +339,27 @@ async function buildPages() {
 		if (!await exists(absoluteHtmlPath) || !await exists(absoluteDataPath)) {
 			continue
 		}
-		await checkpoint();
 		const content = await fsp.readFile(absoluteHtmlPath, "utf8");
-		await checkpoint();
 		const data = JSON.parse(await fsp.readFile(absoluteDataPath, "utf8"));
-		await checkpoint();
 		const ext = data.data?.ext || "zip";
 		await fsp.writeFile(absoluteHtmlPath, content.replace("\x3c!-- @links --\x3e", createLinks(data, entry.name, ext)));
-		await checkpoint();
 		await createAssetIndexPages(template, markdown_js + markdown_css, entry.name, data, ext);
-		await checkpoint()
 	}
 	await walk(".");
 	for (const entry of extensions) {
-		await checkpoint();
 		if (entry.isDirectory()) {
 			await moveExtensionData(path.join(extensionsPath, entry.name))
 		}
 	}
 }
 async function cleanupOutput(target) {
+	await checkpoint()
 	for (const entry of OUTPUT_CLEANUP) {
-		await checkpoint();
 		await fsp.rm(path.join(target, entry), {
 			recursive: true,
 			force: true
 		})
 	}
-	await checkpoint()
 }
 async function buildToCache() {
 	console.log(`Building ${path.relative(ROOT,CACHE)}`);
@@ -403,17 +368,12 @@ async function buildToCache() {
 		recursive: true,
 		force: true
 	});
-	await checkpoint();
 	await fsp.mkdir(CACHE, {
 		recursive: true
 	});
-	await checkpoint();
 	await copySource(CACHE);
-	await checkpoint();
 	await buildPages();
-	await checkpoint();
 	await cleanupOutput(CACHE);
-	await checkpoint();
 	console.log(`Built ${path.relative(ROOT,CACHE)}`)
 }
 async function publishCache() {

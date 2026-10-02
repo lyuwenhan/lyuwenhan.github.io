@@ -8,7 +8,6 @@ const PAGES = path.join(DIST, "pages");
 const CACHE = path.join(DIST, ".cache");
 const WATCH = process.argv.includes("--watch");
 const COPY_EXCLUDES = new Set([".github", ".git", ".gitignore", ".vscode", "dist", "node_modules", "package.json", "package-lock.json"]);
-const OUTPUT_CLEANUP = ["nav.html", "template"];
 let isProcessing = false;
 let hasUpdate = false;
 let isMoving = false;
@@ -35,15 +34,6 @@ async function checkpoint() {
 	throwIfUpdated()
 }
 
-function waitForMoveFinished() {
-	if (!isMoving) {
-		return Promise.resolve()
-	}
-	return new Promise(resolve => {
-		moveWaiters.push(resolve)
-	})
-}
-
 function waitForReadsDrained() {
 	if (activeReads === 0) {
 		return Promise.resolve()
@@ -51,24 +41,6 @@ function waitForReadsDrained() {
 	return new Promise(resolve => {
 		readDrainWaiters.push(resolve)
 	})
-}
-async function beginRead() {
-	await waitForMoveFinished();
-	activeReads++
-}
-
-function endRead() {
-	activeReads--;
-	if (activeReads < 0) {
-		activeReads = 0
-	}
-	if (activeReads === 0) {
-		const waiters = readDrainWaiters;
-		readDrainWaiters = [];
-		for (const resolve of waiters) {
-			resolve()
-		}
-	}
 }
 async function beginMove() {
 	isMoving = true;
@@ -334,15 +306,6 @@ async function buildPages() {
 		}
 	}
 }
-async function cleanupOutput(target) {
-	await checkpoint();
-	for (const entry of OUTPUT_CLEANUP) {
-		await fs.promises.rm(path.join(target, entry), {
-			recursive: true,
-			force: true
-		})
-	}
-}
 async function buildToCache() {
 	console.log(`Building dist/.cache`);
 	await checkpoint();
@@ -355,7 +318,10 @@ async function buildToCache() {
 	});
 	await copySource(CACHE);
 	await buildPages();
-	await cleanupOutput(CACHE);
+	await fs.promises.rm(path.join(CACHE, "template"), {
+		recursive: true,
+		force: true
+	});
 	console.log(`Built dist/.cache`)
 }
 async function publishCache() {

@@ -226,7 +226,18 @@ button:active {
 	gap: 20px;
 	margin-top: 20px
 }
-.toolbar {
+body div.code-toolbar > .toolbar {
 	display: flex;
 	gap: 10px
+}
+body div.code-toolbar > .toolbar > .toolbar-item > span {
+	color: #000
+}
+body div.code-toolbar {
+	background-color: #f5f2f0;
+	border: 1px solid #e3e3e3;
+	border-radius: 7px
+}
+body div.code-toolbar > .line-numbers {
+	margin: 0
 }

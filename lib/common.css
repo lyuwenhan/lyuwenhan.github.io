@@ -152,7 +152,7 @@ td, th {
 	border: 1px solid #000;
 	padding: 6px
 }
-:is(.horizontalContainer, .verticalContainer, .extensionDescription) > :is(h1, h2, h3, h4, h5, h6) {
+:is(.horizontalContainer, .verticalContainer) > * {
 	margin: 0
 }
 .lisum {
@@ -211,9 +211,6 @@ button:active {
 }
 .verticalContainer {
 	flex-direction: column
-}
-.verticalContainer > ul {
-	margin: 0
 }
 .extensionsCard {
 	border: 1px solid #000;

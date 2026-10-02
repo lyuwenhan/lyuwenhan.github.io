@@ -36,22 +36,6 @@ async function checkpoint() {
 	throwIfUpdated()
 }
 
-function registerExitHandlers() {
-	const exit = code => {
-		process.exit(code)
-	};
-	process.once("SIGINT", () => exit(0));
-	process.once("SIGTERM", () => exit(0));
-	process.on("uncaughtException", error => {
-		console.error(error);
-		exit(1)
-	});
-	process.on("unhandledRejection", error => {
-		console.error(error);
-		exit(1)
-	})
-}
-
 function waitForMoveFinished() {
 	if (!isMoving) {
 		return Promise.resolve()
@@ -121,7 +105,7 @@ async function copySource(target) {
 		const destination = path.join(target, entry.name);
 		await fsp.cp(source, destination, {
 			recursive: true
-		});
+		})
 	}
 }
 
@@ -241,7 +225,7 @@ async function createAssetIndexPages(template, markdownHead, extensionName, data
 		let readmeContent = "";
 		const readmePath = path.join(assetPath, "README", "README.md");
 		if (await exists(readmePath)) {
-			readmeContent = `<div class="extensionDescription">${mdConverter(await fsp.readFile(readmePath,"utf8"))}</div>`
+			readmeContent = mdConverter(await fsp.readFile(readmePath,"utf8"))
 		}
 		const page = replaceTemplate(template, {
 			title: value.displayName ?? name,
@@ -253,7 +237,7 @@ async function createAssetIndexPages(template, markdownHead, extensionName, data
 			mainClass: "verticalContainer",
 			backBreak: false
 		});
-		await fsp.writeFile(path.join(assetPath, "index.html"), page);
+		await fsp.writeFile(path.join(assetPath, "index.html"), page)
 	}
 }
 async function buildPages() {
@@ -267,7 +251,7 @@ async function buildPages() {
 			const absolutePath = path.join(CACHE, p);
 			let s = await fsp.readFile(absolutePath, "utf8");
 			s = replaceNav(s, nav);
-			await fsp.writeFile(absolutePath, s);
+			await fsp.writeFile(absolutePath, s)
 		},
 		".md": async p => {
 			const absolutePath = path.join(CACHE, p);
@@ -299,7 +283,7 @@ async function buildPages() {
 				back: ".."
 			});
 			for (const output of outputs) {
-				await fsp.writeFile(output, s);
+				await fsp.writeFile(output, s)
 			}
 		}
 	};
@@ -342,7 +326,7 @@ async function buildPages() {
 		const data = JSON.parse(await fsp.readFile(absoluteDataPath, "utf8"));
 		const ext = data.data?.ext || "zip";
 		await fsp.writeFile(absoluteHtmlPath, content.replace("\x3c!-- @links --\x3e", createLinks(data, entry.name, ext)));
-		await createAssetIndexPages(template, markdown_js + markdown_css, entry.name, data, ext);
+		await createAssetIndexPages(template, markdown_js + markdown_css, entry.name, data, ext)
 	}
 	await walk(".");
 	for (const entry of extensions) {
@@ -352,7 +336,7 @@ async function buildPages() {
 	}
 }
 async function cleanupOutput(target) {
-	await checkpoint()
+	await checkpoint();
 	for (const entry of OUTPUT_CLEANUP) {
 		await fsp.rm(path.join(target, entry), {
 			recursive: true,
@@ -361,7 +345,7 @@ async function cleanupOutput(target) {
 	}
 }
 async function buildToCache() {
-	console.log(`Building ${path.relative(ROOT,CACHE)}`);
+	console.log(`Building dist/.cache`);
 	await checkpoint();
 	await fsp.rm(CACHE, {
 		recursive: true,
@@ -373,7 +357,7 @@ async function buildToCache() {
 	await copySource(CACHE);
 	await buildPages();
 	await cleanupOutput(CACHE);
-	console.log(`Built ${path.relative(ROOT,CACHE)}`)
+	console.log(`Built dist/.cache`)
 }
 async function publishCache() {
 	throwIfUpdated();
@@ -459,7 +443,7 @@ function startWatcher() {
 	console.log("Watching files...")
 }
 async function main() {
-	registerExitHandlers();
+	console.log("Starting...")
 	await fsp.mkdir(DIST, {
 		recursive: true
 	});

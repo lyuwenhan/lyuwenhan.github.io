@@ -65,3 +65,8 @@ td.col3, td.col6, td.col9 {
 	display: flex;
 	gap: 8px
 }
+#focus-input {
+	opacity: 0;
+	pointer-events: none;
+	position: fixed
+}

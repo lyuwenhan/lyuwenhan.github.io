@@ -1,3 +1,5 @@
+const buttonUndo = document.getElementById("button-undo");
+const buttonDelete = document.getElementById("button-delete");
 const buttonReset = document.getElementById("button-reset");
 const buttonSolve = document.getElementById("button-solve");
 const buttonResetNotes = document.getElementById("button-reset-notes");
@@ -6,6 +8,7 @@ const autoSolveNakedSubsetEle = document.getElementById("auto-solve-naked-subset
 const autoSolveHiddenSingleEle = document.getElementById("auto-solve-hidden-single");
 const autoSolvePointingNumbersEle = document.getElementById("auto-solve-pointing-numbers");
 const multipleAnswerCheckEle = document.getElementById("multiple-answer-check");
+const focusInput = document.getElementById("focus-input");
 let autoSolveNakedSingle = window.localStorage.getItem("sudoku-solver-auto-solve-naked-single") !== "false";
 autoSolveNakedSingleEle.checked = autoSolveNakedSingle;
 let autoSolveNakedSubset = window.localStorage.getItem("sudoku-solver-auto-solve-naked-subset") !== "false";
@@ -521,6 +524,22 @@ function setFocus() {
 		boxes[x]?.[y]?.classList?.add("box-focus")
 	}
 }
+
+function pressDelete() {
+	for (const pos of focus) {
+		const [x, y] = pos.split(",").map(Number);
+		if (grid[x][y].isNumber) {
+			addGuess(x, y)
+		}
+		grid[x][y] = {
+			isNumber: false,
+			value: Array(9).fill(true)
+		}
+	}
+	autoSolve();
+	setHistory();
+	display()
+}
 autoSolveNakedSingleEle.addEventListener("change", () => {
 	autoSolveNakedSingle = autoSolveNakedSingleEle.checked;
 	window.localStorage.setItem("sudoku-solver-auto-solve-naked-single", autoSolveNakedSingle);
@@ -561,6 +580,14 @@ multipleAnswerCheckEle.addEventListener("change", () => {
 	multipleAnswerCheck = multipleAnswerCheckEle.checked;
 	window.localStorage.setItem("sudoku-solver-multiple-answer-check", multipleAnswerCheck)
 });
+buttonUndo.addEventListener("click", () => {
+	if (prevI > 0) {
+		prevI--;
+		grid = JSON.parse(prev[prevI]);
+		display()
+	}
+});
+buttonDelete.addEventListener("click", pressDelete);
 buttonReset.addEventListener("click", () => {
 	resetGrid();
 	setHistory();
@@ -593,6 +620,7 @@ document.addEventListener("click", e => {
 				focus.add(`${x},${y}`)
 			}
 			setFocus();
+			focusInput.focus();
 			return
 		}
 	}
@@ -600,7 +628,7 @@ document.addEventListener("click", e => {
 });
 document.addEventListener("keydown", e => {
 	const t = e.target;
-	if (t instanceof HTMLInputElement || t instanceof HTMLTextAreaElement || t?.isContentEditable) {
+	if (t !== focusInput && (t instanceof HTMLInputElement || t instanceof HTMLTextAreaElement || t?.isContentEditable)) {
 		return
 	}
 	if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
@@ -669,19 +697,14 @@ document.addEventListener("keydown", e => {
 			setHistory();
 			display()
 		} else if (e.key === "Backspace" || e.key === "Delete") {
-			for (const pos of focus) {
-				const [x, y] = pos.split(",").map(Number);
-				if (grid[x][y].isNumber) {
-					addGuess(x, y)
-				}
-				grid[x][y] = {
-					isNumber: false,
-					value: Array(9).fill(true)
-				}
-			}
-			autoSolve();
-			setHistory();
-			display()
+			pressDelete()
 		}
 	}
 });
+focusInput.addEventListener("beforeinput", e => {
+	e.preventDefault();
+	e.stopImmediatePropagation()
+}, true);
+focusInput.addEventListener("input", e => {
+	e.target.value = ""
+}, true);

@@ -540,6 +540,26 @@ function pressDelete() {
 	setHistory();
 	display()
 }
+
+function inputNumber(num) {
+	for (const pos of focus) {
+		const [x, y] = pos.split(",").map(Number);
+		if (grid[x][y].isNumber) {
+			continue
+		}
+		if (!grid[x][y].value[num]) {
+			continue
+		}
+		grid[x][y] = {
+			isNumber: true,
+			value: num
+		};
+		removeGuess([`${x},${y}`])
+	}
+	autoSolve();
+	setHistory();
+	display()
+}
 autoSolveNakedSingleEle.addEventListener("change", () => {
 	autoSolveNakedSingle = autoSolveNakedSingleEle.checked;
 	window.localStorage.setItem("sudoku-solver-auto-solve-naked-single", autoSolveNakedSingle);
@@ -678,30 +698,16 @@ document.addEventListener("keydown", e => {
 		setFocus()
 	} else if (!e.repeat && focus.size > 0) {
 		if (/^[1-9]$/.test(e.key)) {
-			const num = Number(e.key) - 1;
-			for (const pos of focus) {
-				const [x, y] = pos.split(",").map(Number);
-				if (grid[x][y].isNumber) {
-					continue
-				}
-				if (!grid[x][y].value[num]) {
-					continue
-				}
-				grid[x][y] = {
-					isNumber: true,
-					value: num
-				};
-				removeGuess([`${x},${y}`])
-			}
-			autoSolve();
-			setHistory();
-			display()
+			inputNumber(Number(e.key) - 1)
 		} else if (e.key === "Backspace" || e.key === "Delete") {
 			pressDelete()
 		}
 	}
 });
 focusInput.addEventListener("beforeinput", e => {
+	if (/^[1-9]$/.test(e.data)) {
+		inputNumber(Number(e.data) - 1)
+	}
 	e.preventDefault();
 	e.stopImmediatePropagation()
 }, true);

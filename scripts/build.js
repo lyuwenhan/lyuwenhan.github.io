@@ -10,9 +10,7 @@ const WATCH = process.argv.includes("--watch");
 const COPY_EXCLUDES = new Set([".github", ".git", ".gitignore", ".vscode", "dist", "node_modules", "package.json", "package-lock.json"]);
 let isProcessing = false;
 let hasUpdate = false;
-let isMoving = false;
 let activeReads = 0;
-let moveWaiters = [];
 let readDrainWaiters = [];
 class BuildInterruptedError extends Error {
 	constructor() {
@@ -43,17 +41,7 @@ function waitForReadsDrained() {
 	})
 }
 async function beginMove() {
-	isMoving = true;
 	await waitForReadsDrained()
-}
-
-function endMove() {
-	isMoving = false;
-	const waiters = moveWaiters;
-	moveWaiters = [];
-	for (const resolve of waiters) {
-		resolve()
-	}
 }
 async function exists(p) {
 	try {
@@ -213,10 +201,10 @@ async function createAssetIndexPages(template, markdownHead, extensionName, data
 }
 async function buildPages() {
 	await checkpoint();
+	const template_nav = await fs.promises.readFile(path.join(CACHE, "template", "nav.html"), "utf8");
 	const template = replaceNav(await fs.promises.readFile(path.join(CACHE, "template", "template.html"), "utf8"), template_nav);
 	const markdown_js = await fs.promises.readFile(path.join(CACHE, "template", "markdown.js.html"), "utf8");
 	const markdown_css = await fs.promises.readFile(path.join(CACHE, "template", "markdown.css.html"), "utf8");
-	const template_nav = await fs.promises.readFile(path.join(CACHE, "template", "nav.html"), "utf8");
 	const action = {
 		".html": async p => {
 			const absolutePath = path.join(CACHE, p);
@@ -334,9 +322,7 @@ async function publishCache() {
 		});
 		await fs.promises.rename(CACHE, PAGES);
 		console.log(`Published ${path.relative(ROOT,PAGES)}`)
-	} finally {
-		endMove()
-	}
+	} finally {}
 }
 async function processUpdate() {
 	if (isProcessing) {

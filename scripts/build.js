@@ -7,7 +7,6 @@ const ROOT = path.resolve(__dirname, "..");
 const DIST = path.join(ROOT, "dist");
 const PAGES = path.join(DIST, "pages");
 const CACHE = path.join(DIST, ".cache");
-const PORT = 5670;
 const WATCH = process.argv.includes("--watch");
 const COPY_EXCLUDES = new Set([".github", ".git", ".gitignore", ".vscode", "dist", "node_modules", "package.json", "package-lock.json"]);
 const OUTPUT_CLEANUP = ["nav.html", "template"];
@@ -451,48 +450,6 @@ function sourceChanged(filename) {
 	}, 50)
 }
 
-function startServer() {
-	const express = require("express");
-	const app = express();
-	const staticPages = express.static(PAGES, {
-		etag: false,
-		lastModified: false,
-		setHeaders(res) {
-			res.setHeader("Cache-Control", "no-cache")
-		}
-	});
-	app.use(async (req, res, next) => {
-		try {
-			await beginRead()
-		} catch (error) {
-			next(error);
-			return
-		}
-		let finished = false;
-
-		function finishRead() {
-			if (finished) {
-				return
-			}
-			finished = true;
-			endRead()
-		}
-		res.once("finish", finishRead);
-		res.once("close", finishRead);
-		staticPages(req, res, error => {
-			finishRead();
-			next(error)
-		})
-	});
-	app.use((req, res) => {
-		res.status(404).send("404 Not Found")
-	});
-	app.listen(PORT, () => {
-		console.log(`Server: http://localhost:${PORT}`);
-		console.log(`Serving ${path.relative(ROOT,PAGES)}`)
-	})
-}
-
 function startWatcher() {
 	fs.watch(ROOT, {
 		recursive: true
@@ -511,7 +468,6 @@ async function main() {
 	if (!WATCH) {
 		return
 	}
-	startServer();
 	startWatcher()
 }
 main().catch(error => {

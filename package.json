@@ -11,8 +11,5 @@
 	"dependencies": {
 		"jsdom": "^29.1.1",
 		"markdown-it": "^15.0.2"
-	},
-	"devDependencies": {
-		"express": "^5.2.1"
 	}
 }

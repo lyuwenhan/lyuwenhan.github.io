@@ -62,7 +62,6 @@ function replaceTemplate(html, options) {
 		title,
 		head,
 		content,
-		body,
 		source,
 		mainClass,
 		backBreak
@@ -70,7 +69,6 @@ function replaceTemplate(html, options) {
 		title: "",
 		head: "",
 		content: "",
-		body: "",
 		source: "",
 		mainClass: "",
 		backBreak: true,
@@ -78,44 +76,7 @@ function replaceTemplate(html, options) {
 	};
 	const mainClassText = mainClass ? " " + mainClass : "";
 	const backBreakText = backBreak ? "<br>\n" : "\n";
-	return html.replace("@title", title).replace(" @mainClass", mainClassText).replace("\x3c!-- @head --\x3e", head).replace("\x3c!-- @content --\x3e", `<a href=".." class="bt">Back</a>${backBreakText}` + (source ? `<a href="${source}" class="bt" target="_blank">Source file</a><br>\n` : "") + content).replace("\x3c!-- @body --\x3e", body)
-}
-async function movePath(source, destination) {
-	await checkpoint();
-	const sourceStat = await fs.promises.lstat(source);
-	if (sourceStat.isDirectory()) {
-		if (await exists(destination)) {
-			const destinationStat = await fs.promises.lstat(destination);
-			if (destinationStat.isDirectory()) {
-				const entries = await fs.promises.readdir(source, {
-					withFileTypes: true
-				});
-				for (const entry of entries) {
-					await movePath(path.join(source, entry.name), path.join(destination, entry.name))
-				}
-				await fs.promises.rmdir(source);
-				return
-			}
-			await fs.promises.rm(destination, {
-				recursive: true,
-				force: true
-			})
-		} else {
-			await fs.promises.mkdir(path.dirname(destination), {
-				recursive: true
-			})
-		}
-		await fs.promises.rename(source, destination);
-		return
-	}
-	await fs.promises.mkdir(path.dirname(destination), {
-		recursive: true
-	});
-	await fs.promises.rm(destination, {
-		recursive: true,
-		force: true
-	});
-	await fs.promises.rename(source, destination)
+	return html.replace("@title", title).replace(" @mainClass", mainClassText).replace("\x3c!-- @head --\x3e", head).replace("\x3c!-- @content --\x3e", `<a href=".." class="bt">Back</a>${backBreakText}` + (source ? `<a href="${source}" class="bt" target="_blank">Source file</a><br>\n` : "") + content)
 }
 async function moveExtensionData(extensionPath) {
 	await checkpoint();
@@ -125,21 +86,32 @@ async function moveExtensionData(extensionPath) {
 	}
 	const assetsPath = path.join(dataPath, "assets");
 	if (await exists(assetsPath)) {
-		const assetEntries = await fs.promises.readdir(assetsPath, {
-			withFileTypes: true
-		});
-		for (const entry of assetEntries) {
-			await movePath(path.join(assetsPath, entry.name), path.join(extensionPath, entry.name))
+		const assetEntries = await fs.promises.readdir(assetsPath);
+		for (const name of assetEntries) {
+			const source = path.join(assetsPath, name);
+			const destination = path.join(extensionPath, name);
+			await fs.promises.rm(destination, {
+				recursive: true,
+				force: true
+			});
+			await fs.promises.rename(source, destination)
 		}
+		await fs.promises.rm(assetsPath, {
+			recursive: true,
+			force: true
+		})
 	}
 	const dataEntries = await fs.promises.readdir(dataPath, {
 		withFileTypes: true
 	});
 	for (const entry of dataEntries) {
-		if (entry.name === "assets") {
-			continue
-		}
-		await movePath(path.join(dataPath, entry.name), path.join(extensionPath, entry.name))
+		const source = path.join(dataPath, entry.name);
+		const destination = path.join(extensionPath, entry.name);
+		await fs.promises.rm(destination, {
+			recursive: true,
+			force: true
+		});
+		await fs.promises.rename(source, destination)
 	}
 	await fs.promises.rm(dataPath, {
 		recursive: true,
@@ -168,13 +140,13 @@ async function createAssetIndexPages(template, markdownHead, extensionName, data
 		const readmePath = path.join(assetPath, "README", "README.md");
 		if (await exists(readmePath)) {
 			readmeContent = mdConverter(await fs.promises.readFile(readmePath, "utf8"))
+		} else {
+			readmeContent = `<h1>${value.displayName}</h1><span>${value.description}</span>`
 		}
 		const page = replaceTemplate(template, {
-			title: value.displayName ?? name,
-			head: readmeContent ? markdownHead : "",
+			title: value.displayName,
+			head: markdownHead,
 			content: content + readmeContent,
-			body: "",
-			source: "",
 			mainClass: "verticalContainer",
 			backBreak: false
 		});
@@ -185,18 +157,16 @@ async function buildPages() {
 	await checkpoint();
 	const template_nav = await fs.promises.readFile(path.join(CACHE, "template", "nav.html"), "utf8");
 	const template = replaceNav(await fs.promises.readFile(path.join(CACHE, "template", "template.html"), "utf8"), template_nav);
-	const markdown_js = await fs.promises.readFile(path.join(CACHE, "template", "markdown.js.html"), "utf8");
-	const markdown_css = await fs.promises.readFile(path.join(CACHE, "template", "markdown.css.html"), "utf8");
+	const markdown_assets = await fs.promises.readFile(path.join(CACHE, "template", "markdown-assets.html"), "utf8");
 	const action = {
 		".html": async p => {
 			const absolutePath = path.join(CACHE, p);
-			let s = await fs.promises.readFile(absolutePath, "utf8");
-			s = replaceNav(s, template_nav);
-			await fs.promises.writeFile(absolutePath, s)
+			const html = replaceNav(await fs.promises.readFile(absolutePath, "utf8"), template_nav);
+			await fs.promises.writeFile(absolutePath, html)
 		},
 		".md": async p => {
 			const absolutePath = path.join(CACHE, p);
-			let s = await fs.promises.readFile(absolutePath, "utf8");
+			let html = await fs.promises.readFile(absolutePath, "utf8");
 			const dir = path.dirname(p);
 			const base = path.basename(p, ".md");
 			const pagePath = p.split(path.sep).join("/");
@@ -215,15 +185,14 @@ async function buildPages() {
 			if (!outputs.length) {
 				return
 			}
-			s = replaceTemplate(template, {
+			html = replaceTemplate(template, {
 				title: base.replace(/_/g, " "),
-				head: markdown_js + markdown_css,
-				content: mdConverter(s),
-				body: "",
+				head: markdown_assets,
+				content: mdConverter(html),
 				source: discardSource ? "" : "/" + pagePath
 			});
 			for (const output of outputs) {
-				await fs.promises.writeFile(output, s)
+				await fs.promises.writeFile(output, html)
 			}
 		}
 	};
@@ -255,10 +224,8 @@ async function buildPages() {
 		if (!entry.isDirectory()) {
 			continue
 		}
-		const htmlPath = path.join("extensions", entry.name, "index.html");
-		const dataPath = path.join("extensions", entry.name, "data", "versions.json");
-		const absoluteHtmlPath = path.join(CACHE, htmlPath);
-		const absoluteDataPath = path.join(CACHE, dataPath);
+		const absoluteHtmlPath = path.join(CACHE, "extensions", entry.name, "index.html");
+		const absoluteDataPath = path.join(CACHE, "extensions", entry.name, "data", "versions.json");
 		if (!await exists(absoluteHtmlPath) || !await exists(absoluteDataPath)) {
 			continue
 		}
@@ -266,7 +233,7 @@ async function buildPages() {
 		const data = JSON.parse(await fs.promises.readFile(absoluteDataPath, "utf8"));
 		const ext = data.data?.ext || "zip";
 		await fs.promises.writeFile(absoluteHtmlPath, content.replace("\x3c!-- @links --\x3e", createLinks(data, entry.name, ext)));
-		await createAssetIndexPages(template, markdown_js + markdown_css, entry.name, data, ext)
+		await createAssetIndexPages(template, markdown_assets, entry.name, data, ext)
 	}
 	await walk(".");
 	for (const entry of extensions) {
@@ -294,15 +261,13 @@ async function buildToCache() {
 	console.log(`Built dist/.cache`)
 }
 async function publishCache() {
-	throwIfUpdated();
-	try {
-		await fs.promises.rm(PAGES, {
-			recursive: true,
-			force: true
-		});
-		await fs.promises.rename(CACHE, PAGES);
-		console.log(`Published ${path.relative(ROOT,PAGES)}`)
-	} finally {}
+	await fs.promises.rm(PAGES, {
+		recursive: true,
+		force: true
+	});
+	await fs.promises.rename(CACHE, PAGES);
+	console.log(`Published ${path.relative(ROOT,PAGES)}`);
+	throwIfUpdated()
 }
 async function processUpdate() {
 	if (isProcessing) {
@@ -310,65 +275,56 @@ async function processUpdate() {
 		return
 	}
 	isProcessing = true;
-	try {
-		do {
-			hasUpdate = false;
-			try {
-				await buildToCache();
-				throwIfUpdated();
-				await publishCache()
-			} catch (error) {
-				if (error instanceof BuildInterruptedError) {
-					console.log("Build interrupted, restarting...")
-				} else {
-					console.error("Build failed:");
-					console.error(error);
-					try {
-						await fs.promises.rm(CACHE, {
-							recursive: true,
-							force: true
-						})
-					} catch {}
-				}
+	do {
+		hasUpdate = false;
+		try {
+			await buildToCache();
+			throwIfUpdated();
+			await publishCache();
+			await checkpoint()
+		} catch (error) {
+			if (error instanceof BuildInterruptedError) {
+				console.log("Build interrupted, restarting...")
+			} else {
+				console.error("Build failed:");
+				console.error(error);
+				try {
+					await fs.promises.rm(CACHE, {
+						recursive: true,
+						force: true
+					})
+				} catch {}
 			}
-		} while (hasUpdate)
-	} finally {
-		isProcessing = false;
-		if (hasUpdate) {
-			processUpdate()
 		}
-	}
+	} while (hasUpdate);
+	isProcessing = false
 }
-let changeTimer;
 
 function sourceChanged(filename) {
 	if (!filename) {
 		return
 	}
 	const relative = filename.toString();
-	const first = relative.split(/[\\/]/)[0];
+	const first = relative.split(path.sep)[0];
 	if (first === "dist" || first === ".git" || first === "node_modules") {
 		return
 	}
 	if (isProcessing) {
 		if (!hasUpdate) {
 			console.log(`Changed ${relative}`);
-			console.log("Interrupting current build...")
+			console.log("Interrupting current build...");
+			hasUpdate = true
 		}
-		hasUpdate = true;
 		return
 	}
-	clearTimeout(changeTimer);
-	changeTimer = setTimeout(() => {
-		console.log(`Changed ${relative}`);
-		processUpdate()
-	}, 50)
+	console.log(`Changed ${relative}`);
+	processUpdate()
 }
 
 function startWatcher() {
 	fs.watch(ROOT, {
 		recursive: true
-	}, (event, filename) => {
+	}, (_event, filename) => {
 		sourceChanged(filename)
 	});
 	console.log("Watching files...")

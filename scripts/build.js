@@ -1,5 +1,4 @@
 const fs = require("fs");
-const fsp = fs.promises;
 const path = require("path");
 const mdConverter = require("./mdConverter");
 const createLinks = require("./createLinks");
@@ -86,14 +85,14 @@ function endMove() {
 }
 async function exists(p) {
 	try {
-		await fsp.access(p);
+		await fs.promises.access(p);
 		return true
 	} catch {
 		return false
 	}
 }
 async function copySource(target) {
-	const entries = await fsp.readdir(ROOT, {
+	const entries = await fs.promises.readdir(ROOT, {
 		withFileTypes: true
 	});
 	for (const entry of entries) {
@@ -103,7 +102,7 @@ async function copySource(target) {
 		await checkpoint();
 		const source = path.join(ROOT, entry.name);
 		const destination = path.join(target, entry.name);
-		await fsp.cp(source, destination, {
+		await fs.promises.cp(source, destination, {
 			recursive: true
 		})
 	}
@@ -140,40 +139,40 @@ function replaceTemplate(s, options) {
 }
 async function movePath(source, destination) {
 	await checkpoint();
-	const sourceStat = await fsp.lstat(source);
+	const sourceStat = await fs.promises.lstat(source);
 	if (sourceStat.isDirectory()) {
 		if (await exists(destination)) {
-			const destinationStat = await fsp.lstat(destination);
+			const destinationStat = await fs.promises.lstat(destination);
 			if (destinationStat.isDirectory()) {
-				const entries = await fsp.readdir(source, {
+				const entries = await fs.promises.readdir(source, {
 					withFileTypes: true
 				});
 				for (const entry of entries) {
 					await movePath(path.join(source, entry.name), path.join(destination, entry.name))
 				}
-				await fsp.rmdir(source);
+				await fs.promises.rmdir(source);
 				return
 			}
-			await fsp.rm(destination, {
+			await fs.promises.rm(destination, {
 				recursive: true,
 				force: true
 			})
 		} else {
-			await fsp.mkdir(path.dirname(destination), {
+			await fs.promises.mkdir(path.dirname(destination), {
 				recursive: true
 			})
 		}
-		await fsp.rename(source, destination);
+		await fs.promises.rename(source, destination);
 		return
 	}
-	await fsp.mkdir(path.dirname(destination), {
+	await fs.promises.mkdir(path.dirname(destination), {
 		recursive: true
 	});
-	await fsp.rm(destination, {
+	await fs.promises.rm(destination, {
 		recursive: true,
 		force: true
 	});
-	await fsp.rename(source, destination)
+	await fs.promises.rename(source, destination)
 }
 async function moveExtensionData(extensionPath) {
 	await checkpoint();
@@ -183,14 +182,14 @@ async function moveExtensionData(extensionPath) {
 	}
 	const assetsPath = path.join(dataPath, "assets");
 	if (await exists(assetsPath)) {
-		const assetEntries = await fsp.readdir(assetsPath, {
+		const assetEntries = await fs.promises.readdir(assetsPath, {
 			withFileTypes: true
 		});
 		for (const entry of assetEntries) {
 			await movePath(path.join(assetsPath, entry.name), path.join(extensionPath, entry.name))
 		}
 	}
-	const dataEntries = await fsp.readdir(dataPath, {
+	const dataEntries = await fs.promises.readdir(dataPath, {
 		withFileTypes: true
 	});
 	for (const entry of dataEntries) {
@@ -199,7 +198,7 @@ async function moveExtensionData(extensionPath) {
 		}
 		await movePath(path.join(dataPath, entry.name), path.join(extensionPath, entry.name))
 	}
-	await fsp.rm(dataPath, {
+	await fs.promises.rm(dataPath, {
 		recursive: true,
 		force: true
 	})
@@ -225,7 +224,7 @@ async function createAssetIndexPages(template, markdownHead, extensionName, data
 		let readmeContent = "";
 		const readmePath = path.join(assetPath, "README", "README.md");
 		if (await exists(readmePath)) {
-			readmeContent = mdConverter(await fsp.readFile(readmePath,"utf8"))
+			readmeContent = mdConverter(await fs.promises.readFile(readmePath, "utf8"))
 		}
 		const page = replaceTemplate(template, {
 			title: value.displayName ?? name,
@@ -237,25 +236,25 @@ async function createAssetIndexPages(template, markdownHead, extensionName, data
 			mainClass: "verticalContainer",
 			backBreak: false
 		});
-		await fsp.writeFile(path.join(assetPath, "index.html"), page)
+		await fs.promises.writeFile(path.join(assetPath, "index.html"), page)
 	}
 }
 async function buildPages() {
 	await checkpoint();
-	const nav = await fsp.readFile(path.join(CACHE, "nav.html"), "utf8");
-	const template = replaceNav(await fsp.readFile(path.join(CACHE, "template", "template.html"), "utf8"), nav);
-	const markdown_js = await fsp.readFile(path.join(CACHE, "template", "markdown.js.html"), "utf8");
-	const markdown_css = await fsp.readFile(path.join(CACHE, "template", "markdown.css.html"), "utf8");
+	const template = replaceNav(await fs.promises.readFile(path.join(CACHE, "template", "template.html"), "utf8"), template_nav);
+	const markdown_js = await fs.promises.readFile(path.join(CACHE, "template", "markdown.js.html"), "utf8");
+	const markdown_css = await fs.promises.readFile(path.join(CACHE, "template", "markdown.css.html"), "utf8");
+	const template_nav = await fs.promises.readFile(path.join(CACHE, "template", "nav.html"), "utf8");
 	const action = {
 		".html": async p => {
 			const absolutePath = path.join(CACHE, p);
-			let s = await fsp.readFile(absolutePath, "utf8");
-			s = replaceNav(s, nav);
-			await fsp.writeFile(absolutePath, s)
+			let s = await fs.promises.readFile(absolutePath, "utf8");
+			s = replaceNav(s, template_nav);
+			await fs.promises.writeFile(absolutePath, s)
 		},
 		".md": async p => {
 			const absolutePath = path.join(CACHE, p);
-			let s = await fsp.readFile(absolutePath, "utf8");
+			let s = await fs.promises.readFile(absolutePath, "utf8");
 			const dir = path.dirname(p);
 			const base = path.basename(p, ".md");
 			const pagePath = p.split(path.sep).join("/");
@@ -283,13 +282,13 @@ async function buildPages() {
 				back: ".."
 			});
 			for (const output of outputs) {
-				await fsp.writeFile(output, s)
+				await fs.promises.writeFile(output, s)
 			}
 		}
 	};
 	async function walk(dir) {
 		await checkpoint();
-		const entries = await fsp.readdir(path.join(CACHE, dir), {
+		const entries = await fs.promises.readdir(path.join(CACHE, dir), {
 			withFileTypes: true
 		});
 		for (const entry of entries) {
@@ -305,9 +304,9 @@ async function buildPages() {
 			}
 		}
 	}
-	await fsp.copyFile(path.join(CACHE, "LICENSE"), path.join(CACHE, "LICENSE.txt"));
+	await fs.promises.copyFile(path.join(CACHE, "LICENSE"), path.join(CACHE, "LICENSE.txt"));
 	const extensionsPath = path.join(CACHE, "extensions");
-	const extensions = await fsp.readdir(extensionsPath, {
+	const extensions = await fs.promises.readdir(extensionsPath, {
 		withFileTypes: true
 	});
 	for (const entry of extensions) {
@@ -322,10 +321,10 @@ async function buildPages() {
 		if (!await exists(absoluteHtmlPath) || !await exists(absoluteDataPath)) {
 			continue
 		}
-		const content = await fsp.readFile(absoluteHtmlPath, "utf8");
-		const data = JSON.parse(await fsp.readFile(absoluteDataPath, "utf8"));
+		const content = await fs.promises.readFile(absoluteHtmlPath, "utf8");
+		const data = JSON.parse(await fs.promises.readFile(absoluteDataPath, "utf8"));
 		const ext = data.data?.ext || "zip";
-		await fsp.writeFile(absoluteHtmlPath, content.replace("\x3c!-- @links --\x3e", createLinks(data, entry.name, ext)));
+		await fs.promises.writeFile(absoluteHtmlPath, content.replace("\x3c!-- @links --\x3e", createLinks(data, entry.name, ext)));
 		await createAssetIndexPages(template, markdown_js + markdown_css, entry.name, data, ext)
 	}
 	await walk(".");
@@ -338,7 +337,7 @@ async function buildPages() {
 async function cleanupOutput(target) {
 	await checkpoint();
 	for (const entry of OUTPUT_CLEANUP) {
-		await fsp.rm(path.join(target, entry), {
+		await fs.promises.rm(path.join(target, entry), {
 			recursive: true,
 			force: true
 		})
@@ -347,11 +346,11 @@ async function cleanupOutput(target) {
 async function buildToCache() {
 	console.log(`Building dist/.cache`);
 	await checkpoint();
-	await fsp.rm(CACHE, {
+	await fs.promises.rm(CACHE, {
 		recursive: true,
 		force: true
 	});
-	await fsp.mkdir(CACHE, {
+	await fs.promises.mkdir(CACHE, {
 		recursive: true
 	});
 	await copySource(CACHE);
@@ -363,11 +362,11 @@ async function publishCache() {
 	throwIfUpdated();
 	await beginMove();
 	try {
-		await fsp.rm(PAGES, {
+		await fs.promises.rm(PAGES, {
 			recursive: true,
 			force: true
 		});
-		await fsp.rename(CACHE, PAGES);
+		await fs.promises.rename(CACHE, PAGES);
 		console.log(`Published ${path.relative(ROOT,PAGES)}`)
 	} finally {
 		endMove()
@@ -393,7 +392,7 @@ async function processUpdate() {
 					console.error("Build failed:");
 					console.error(error);
 					try {
-						await fsp.rm(CACHE, {
+						await fs.promises.rm(CACHE, {
 							recursive: true,
 							force: true
 						})
@@ -443,8 +442,8 @@ function startWatcher() {
 	console.log("Watching files...")
 }
 async function main() {
-	console.log("Starting...")
-	await fsp.mkdir(DIST, {
+	console.log("Starting...");
+	await fs.promises.mkdir(DIST, {
 		recursive: true
 	});
 	await buildToCache();

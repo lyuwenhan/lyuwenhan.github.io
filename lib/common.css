@@ -12,9 +12,8 @@ body, code {
 .main {
 	margin: 0 30px;
 	min-height: calc(100% - 120px);
-	overflow-x: auto;
+	overflow-x: hidden;
 	padding: 90px 0 30px;
-	white-space: nowrap;
 	width: calc(100% - 60px)
 }
 .main > h2:first-child {
@@ -222,5 +221,12 @@ button:active {
 	padding: 20px
 }
 #links {
-	gap: 20px
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+	margin-top: 20px
+}
+.toolbar {
+	display: flex;
+	gap: 10px
 }

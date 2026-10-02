@@ -219,6 +219,6 @@ button:active {
 .extensionsCard {
 	border: 1px solid #000;
 	border-radius: 10px;
-	margin: 20px;
+	margin: 20px 0;
 	padding: 20px
 }

@@ -10,8 +10,6 @@ const WATCH = process.argv.includes("--watch");
 const COPY_EXCLUDES = new Set([".github", ".git", ".gitignore", ".vscode", "dist", "node_modules", "package.json", "package-lock.json"]);
 let isProcessing = false;
 let hasUpdate = false;
-let activeReads = 0;
-let readDrainWaiters = [];
 class BuildInterruptedError extends Error {
 	constructor() {
 		super("Build interrupted by source update");
@@ -25,23 +23,10 @@ function throwIfUpdated() {
 	}
 }
 async function checkpoint() {
-	throwIfUpdated();
 	await new Promise(resolve => {
 		setImmediate(resolve)
 	});
 	throwIfUpdated()
-}
-
-function waitForReadsDrained() {
-	if (activeReads === 0) {
-		return Promise.resolve()
-	}
-	return new Promise(resolve => {
-		readDrainWaiters.push(resolve)
-	})
-}
-async function beginMove() {
-	await waitForReadsDrained()
 }
 async function exists(p) {
 	try {
@@ -52,6 +37,7 @@ async function exists(p) {
 	}
 }
 async function copySource(target) {
+	await checkpoint();
 	const entries = await fs.promises.readdir(ROOT, {
 		withFileTypes: true
 	});
@@ -59,7 +45,6 @@ async function copySource(target) {
 		if (COPY_EXCLUDES.has(entry.name)) {
 			continue
 		}
-		await checkpoint();
 		const source = path.join(ROOT, entry.name);
 		const destination = path.join(target, entry.name);
 		await fs.promises.cp(source, destination, {
@@ -68,18 +53,17 @@ async function copySource(target) {
 	}
 }
 
-function replaceNav(s, nav) {
-	return s.replace(/(<div\s+id="nav"[^>]*>)[\s\S]*?(<\/div>)/g, `$1\n${nav}\n$2`)
+function replaceNav(html, nav) {
+	return html.replace(/(<div\s+id="nav"[^>]*>)[\s\S]*?(<\/div>)/g, `$1\n${nav}\n$2`)
 }
 
-function replaceTemplate(s, options) {
+function replaceTemplate(html, options) {
 	const {
 		title,
 		head,
 		content,
 		body,
 		source,
-		back,
 		mainClass,
 		backBreak
 	} = {
@@ -88,14 +72,13 @@ function replaceTemplate(s, options) {
 		content: "",
 		body: "",
 		source: "",
-		back: "..",
 		mainClass: "",
 		backBreak: true,
 		...options
 	};
 	const mainClassText = mainClass ? " " + mainClass : "";
 	const backBreakText = backBreak ? "<br>\n" : "\n";
-	return s.replace("@title", title).replace(" @mainClass", mainClassText).replace("\x3c!-- @head --\x3e", head).replace("\x3c!-- @content --\x3e", `<a href="${back}" class="bt">Back</a>${backBreakText}` + (source ? `<a href="${source}" class="bt" target="_blank">Source file</a><br>\n` : "") + content).replace("\x3c!-- @body --\x3e", body)
+	return html.replace("@title", title).replace(" @mainClass", mainClassText).replace("\x3c!-- @head --\x3e", head).replace("\x3c!-- @content --\x3e", `<a href=".." class="bt">Back</a>${backBreakText}` + (source ? `<a href="${source}" class="bt" target="_blank">Source file</a><br>\n` : "") + content).replace("\x3c!-- @body --\x3e", body)
 }
 async function movePath(source, destination) {
 	await checkpoint();
@@ -192,7 +175,6 @@ async function createAssetIndexPages(template, markdownHead, extensionName, data
 			content: content + readmeContent,
 			body: "",
 			source: "",
-			back: "..",
 			mainClass: "verticalContainer",
 			backBreak: false
 		});
@@ -238,8 +220,7 @@ async function buildPages() {
 				head: markdown_js + markdown_css,
 				content: mdConverter(s),
 				body: "",
-				source: discardSource ? "" : "/" + pagePath,
-				back: ".."
+				source: discardSource ? "" : "/" + pagePath
 			});
 			for (const output of outputs) {
 				await fs.promises.writeFile(output, s)
@@ -314,7 +295,6 @@ async function buildToCache() {
 }
 async function publishCache() {
 	throwIfUpdated();
-	await beginMove();
 	try {
 		await fs.promises.rm(PAGES, {
 			recursive: true,

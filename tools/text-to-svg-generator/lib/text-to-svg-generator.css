@@ -1,0 +1,40 @@
+.main {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 16px
+}
+.main > h3 {
+	margin: 0
+}
+.control {
+	display: flex;
+	align-items: center;
+	gap: 10px
+}
+.control label {
+	display: block;
+}
+#textInput {
+	box-sizing: border-box;
+	max-width: 100%;
+	padding: 6px;
+	width: 420px
+}
+#svgImage {
+	background: #f3f3f3;
+	border: 1px solid #ccc;
+	height: 256px;
+	width: 256px
+}
+#svgImage:hover {
+	background: #eee
+}
+.buttons {
+	flex-direction: column;
+	align-items: flex-start
+}
+.buttonRow {
+	display: flex;
+	gap: 10px
+}

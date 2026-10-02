@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Text to SVG Generator</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="icon" href="/lib/favicon.png" type="image/x-icon">
+	<link rel="stylesheet" href="lib/text-to-svg-generator.css">
+	<link rel="stylesheet" href="/lib/common.css">
+	<link rel="stylesheet" href="/lib/mobile.css" media="only screen and (max-width: 768px)">
+</head>
+
+<body>
+	<div id="top"></div>
+	<div id="nav">
+		<nav><ul><li><a href="/">Home</a></li></ul></nav>
+	</div>
+	<div class="main">
+		<a href=".." class="bt">Back</a>
+		<h3>Text to SVG Generator</h3>
+		<label class="control">Text: <input id="textInput" type="text" placeholder="Type your text"></label>
+		<label class="control">Font Size: <input id="fontSizeInput" type="number" min="0" step="any" value="24"></label>
+		<label class="control">Color: <input id="foregroundInput" type="color" value="#000000"></label>
+		<img id="svgImage" width="256" height="256" alt="SVG Preview">
+		<div class="control buttons">
+			<div class="buttonRow"><button id="downloadSvg">Download Svg</button><button id="copySvg">Copy Svg</button></div>
+			<div class="buttonRow"><button id="downloadPng">Download Png</button><button id="copyPng">Copy Png</button></div>
+		</div>
+	</div>
+	<a id="to-top" href="#top" class="bt" hidden>Top</a>
+	<script src="/lib/main.js"></script>
+	<script src="lib/text-to-svg-generator.js"></script>
+</body>
+
+</html>

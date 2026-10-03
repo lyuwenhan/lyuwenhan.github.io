@@ -640,7 +640,9 @@ document.addEventListener("click", e => {
 				focus.add(`${x},${y}`)
 			}
 			setFocus();
-			focusInput.focus();
+			focusInput.focus({
+				preventScroll: true
+			});
 			return
 		}
 	}

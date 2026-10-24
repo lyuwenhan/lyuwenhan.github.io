@@ -223,6 +223,14 @@ After (sort by price)
 - These commands can be invoked from the Command Palette (**Ctrl + Shift + P**).
 - This action is **not** shown in the editor's context menu.
 
+### Run an action on Git changed files
+
+Run **Minifier: Run [action] on Git changed files in workspace folder** from the Command Palette, then choose an action. In a multi-root workspace, first choose a workspace folder.
+
+The command collects staged, unstaged, and untracked files from VS Code's built-in Git integration and processes each file once using its detected language. Only files inside the selected workspace folder are included, even if the repository is in a parent directory. Deleted files, directories, links pointing outside the folder, and configured excluded files and directories are skipped. Existing language and operation settings apply; processed files are saved. Canceling either picker leaves files unchanged.
+
+The command is hidden when no Git repository is open or no workspace folder is open.
+
 ## Usage
 
 1. Open any file in VS Code.

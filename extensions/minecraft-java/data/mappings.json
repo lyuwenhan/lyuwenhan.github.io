@@ -36,7 +36,7 @@
 			}
 		},
 		"baritone-patrol": {
-			"hasIcon": false,
+			"hasIcon": true,
 			"displayName": "Baritone Patrol",
 			"description": "Records an ordered route and makes Baritone continuously patrol its waypoints in a loop.",
 			"versions": {
@@ -355,7 +355,7 @@
 			"id": "auto-login",
 			"version": "1.2.0"
 		},
-		"85c0371ae4748efc5fa2a6043718c867e924045c": {
+		"85b39b5d2a2c3c4dd092aeb7fba49984138cda2b": {
 			"id": "baritone-patrol",
 			"version": "1.2.0"
 		},
